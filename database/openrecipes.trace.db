@@ -1,0 +1,10 @@
+2016-03-15 22:04:07 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLException: Table "PLAY_EVOLUTIONS" not found; SQL statement:
+select id, hash, apply_script, revert_script, state, last_problem from play_evolutions where state like 'applying_%' [42102-191]
+2016-03-19 09:13:17 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "CREATE TABLE INGREDIENT (
+ID                        BIGINT NOT NULL
+CONSTRAINT PK_INGREDIENT PRIMARY KEY ([*]ID)) "; expected "HASH, AUTO_INCREMENT, NOT, NULL, CHECK, REFERENCES, ,, )"; SQL statement:
+create table ingredient (
+id                        bigint not null
+constraint pk_ingredient primary key (id)) [42001-191]
