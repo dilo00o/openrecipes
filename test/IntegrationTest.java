@@ -1,12 +1,24 @@
+/*
+ *  Copyright 2016 Oliver Dozsa
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 import org.junit.*;
 
-import models.Ingredient;
-import models.IngredientName;
 import models.Language;
-import play.db.Database;
-import play.db.Databases;
-import play.db.evolutions.Evolutions;
-
 import static play.test.Helpers.*;
 
 import java.util.HashMap;
@@ -14,9 +26,38 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
+/**
+ * Integration test class.
+ *
+ * @author Oliver Dozsa
+ */
 public class IntegrationTest
 {
     private Map<String, Object> config;
+    
+    
+    
+    /* --------------------------------------------------------------------- */
+    /* ATTRIBUTES                                                            */
+    /* --------------------------------------------------------------------- */
+
+    /* -- PUBLIC ATTRIBUTES ------------------------------------------------ */
+
+
+
+    /* -- PROTECTED ATTRIBUTES --------------------------------------------- */
+
+
+
+    /* -- PRIVATE ATTRIBUTES ----------------------------------------------- */
+
+
+
+    /* --------------------------------------------------------------------- */
+    /* METHODS                                                               */
+    /* --------------------------------------------------------------------- */
+
+    /* -- PUBLIC METHODS --------------------------------------------------- */
     
     @Before
     public void setup()
@@ -75,38 +116,28 @@ public class IntegrationTest
             }
         );
     }
-    
-    @Test
-    public void testIngredient()
-    {
-        running
-        (
-            fakeApplication(config),
-            new Runnable()
-            {
-                public void run()
-                {
-                    /* Create. */
-                    String testIngNameStr = "testIngName";
-                    
-                    Ingredient testIngredient = new Ingredient();
-                    
-                    testIngredient.save();
-                    
-                    IngredientName testIngName = new IngredientName();
-                    
-                    testIngName.ingredient = testIngredient;
-                    testIngName.name       = testIngNameStr;
-                    
-                    // TODO
-                    
-                    
-                    /* Modify. */
-                    
-                    
-                    /* Delete. */
-                }
-            }
-        );
-    }
+
+
+
+    /* -- PROTECTED METHODS ------------------------------------------------ */
+
+
+
+    /* -- PRIVATE METHODS -------------------------------------------------- */
+
+
+
+    /* --------------------------------------------------------------------- */
+    /* OTHERS                                                                */
+    /* --------------------------------------------------------------------- */
+
+    /* -- PUBLIC OTHERS ---------------------------------------------------- */
+
+
+
+    /* -- PROTECTED OTHERS ------------------------------------------------- */
+
+
+
+    /* -- PRIVATE OTHERS --------------------------------------------------- */
 }

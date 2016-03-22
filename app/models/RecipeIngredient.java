@@ -18,23 +18,20 @@
 
 package models;
 
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 
 import com.avaje.ebean.Model;
 
 /**
- * Model of ingredients.
+ * Model class recipe ingredients.
  *
  * @author Oliver Dozsa
  */
 @Entity
-public class Ingredient extends Model
+public class RecipeIngredient extends Model
 {
     /* --------------------------------------------------------------------- */
     /* ATTRIBUTES                                                            */
@@ -43,34 +40,28 @@ public class Ingredient extends Model
     /* -- PUBLIC ATTRIBUTES ------------------------------------------------ */
     
     /**
-     * The unique identifier.
-     */
+     * The id.
+     * */
     @Id
     @GeneratedValue
     public Long id;
     
     /**
-     * The ingredient names.
+     * The ingredient.
      * */
-    @OneToMany(mappedBy = "ingredient")
-    public List<IngredientName> names;
+    @ManyToOne
+    public Ingredient ingredient;
     
     /**
-     * Used for the recipe - ingredients relationship.
+     * The recipe.
      * */
-    @OneToMany(mappedBy = "ingredient")
-    public List<RecipeIngredient> recipeIngredients;
-    
-    /**
-     * The tags of the ingredient.
-     * */
-    @ManyToMany(mappedBy = "ingredients")
-    public List<IngredientTag> tags;
+    @ManyToOne
+    public Recipe recipe;
     
     /**
      * Finder.
      */
-    public static Finder<Long, Ingredient> find = new Finder<Long, Ingredient>(Ingredient.class);
+    public static Finder<Long, RecipeIngredient> find = new Finder<Long, RecipeIngredient>(RecipeIngredient.class);
 
 
 
@@ -111,5 +102,4 @@ public class Ingredient extends Model
 
 
     /* -- PRIVATE OTHERS --------------------------------------------------- */
-
 }

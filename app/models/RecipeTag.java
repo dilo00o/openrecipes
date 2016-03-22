@@ -24,17 +24,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 
 import com.avaje.ebean.Model;
 
 /**
- * Model of ingredients.
+ * Model class for recipe tags.
  *
  * @author Oliver Dozsa
  */
 @Entity
-public class Ingredient extends Model
+public class RecipeTag extends Model
 {
     /* --------------------------------------------------------------------- */
     /* ATTRIBUTES                                                            */
@@ -43,34 +42,28 @@ public class Ingredient extends Model
     /* -- PUBLIC ATTRIBUTES ------------------------------------------------ */
     
     /**
-     * The unique identifier.
-     */
+     * The id.
+     * */
     @Id
     @GeneratedValue
     public Long id;
     
     /**
-     * The ingredient names.
+     * The tag name.
      * */
-    @OneToMany(mappedBy = "ingredient")
-    public List<IngredientName> names;
+    public String name;
     
     /**
-     * Used for the recipe - ingredients relationship.
+     * Used to map the many to many relationship
+     * recipes - recipe tags
      * */
-    @OneToMany(mappedBy = "ingredient")
-    public List<RecipeIngredient> recipeIngredients;
+    @ManyToMany
+    public List<Recipe> recipes;
     
     /**
-     * The tags of the ingredient.
+     * Finder
      * */
-    @ManyToMany(mappedBy = "ingredients")
-    public List<IngredientTag> tags;
-    
-    /**
-     * Finder.
-     */
-    public static Finder<Long, Ingredient> find = new Finder<Long, Ingredient>(Ingredient.class);
+    public static Finder<Long, RecipeTag> find = new Finder<Long, RecipeTag>(RecipeTag.class);
 
 
 
@@ -111,5 +104,4 @@ public class Ingredient extends Model
 
 
     /* -- PRIVATE OTHERS --------------------------------------------------- */
-
 }
