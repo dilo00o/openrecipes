@@ -1,0 +1,139 @@
+.or-page-content
+{
+    padding-top: 1.25em;
+}
+
+.or-well
+{
+	margin-top: 1.25em;
+}
+
+#or-pagination
+{
+    position: relative;
+}
+
+#or-pagination ul
+{
+    position: absolute;
+    right: 0;
+}
+
+#or-pagination ul .current a
+{
+    color: #666;
+}
+
+.table
+{
+    margin-top: 2em;
+}
+
+.or-m-left-h-em
+{
+    margin-left: 0.5em;
+}
+
+.or-break-word
+{
+    word-wrap: break-word;
+}
+
+.or-tags-default
+{
+    margin-right:   5px;
+    margin-bottom:  5px;
+    max-width:      70px;
+    text-overflow:  ellipsis;
+    overflow:       hidden;
+}
+
+.or-vertical-space
+{
+    height: 30px;
+}
+
+.or-rec-browser-ads-search-ing-tags-result-ing
+{
+    cursor: default;
+}
+
+.or-context-menu
+{
+    position: absolute;
+    display:  none;
+}
+
+.or-context-menu-value
+{
+    display: none;
+}
+
+.or-text-align-right
+{
+    text-align: right;
+}
+
+.or-recipe-img
+{
+    width:  500px;
+    height: 300px;
+}
+
+.or-tagsinput-tag
+{
+    position:    relative;
+    display:     inline-block;
+}
+
+.or-tagsinput-tag-indicator
+{
+    width:  14px;
+    height: 14px;
+
+    position: absolute;
+
+    border-radius: 3px;
+    border-color:  black;
+    border-style:  solid;
+    border-width:  2px;
+    
+    font-size:   9px;
+    color:       black;
+    font-weight: 900;
+}
+
+.or-tagsinput-tag-indicator-group-A
+{
+    background-color: LightSteelBlue;
+}
+
+.or-tagsinput-tag-indicator-group-B
+{
+    background-color: LimeGreen;
+}
+
+.or-tagsinput-tag-indicator-group-C
+{
+    background-color: Linen;
+}
+
+.or-tagsinput-tag-indicator-group-D
+{
+    background-color: LightCoral;
+}
+
+.or-tagsinput-tag-indicator-group-E
+{
+    background-color: GoldenRod;
+}
+
+.or-tagsinput-tag-indicator-group-F
+{
+    background-color: MediumOrchid;
+}
+
+.or-text-monospace
+{
+	font-family: "Courier New", Courier, monospace;
+}

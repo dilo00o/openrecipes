@@ -1,0 +1,74 @@
+@*
+ *
+ *  Copyright 2016 Oliver Dozsa
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ *@
+
+@(title: String)(active: String)(moreCss: String)(moreJs: String)(content: Html)
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = "utf-8">
+        <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
+        <meta name = "description" content = "">
+        <meta name = "author" content = "">
+
+        <title>OpenRecipes - Search better for recipes (TODO: Motto)</title>
+    
+        <!-- Favicon -->
+        <link rel = "shortcut icon" type = "image/png" href="@routes.Assets.versioned("images/favicon.png")">
+
+        <!-- Bootstrap core CSS -->
+        <link href = "@routes.Assets.versioned("stylesheets/bootstrap/bootstrap.min.css")" rel = "stylesheet">
+        
+        <!-- App specific settings. -->
+        <link href = "@routes.Assets.versioned("stylesheets/openrecipes/openrecipes.css")" rel = "stylesheet">
+        
+        @moreCss
+        
+                
+        <!-- jQuery -->
+        <script src = "@routes.Assets.versioned("javascripts/jquery/jquery-2.2.2.min.js")"></script>
+        
+        <!-- Bootstrap JS. -->
+        <script src = "@routes.Assets.versioned("javascripts/bootstrap/bootstrap.min.js")"></script>
+        
+        @moreJs
+    </head>
+  
+    <body>
+        <div class = "container-fluid">
+            <h3 class = "or-m-left-h-em"><img src = "@routes.Assets.versioned("images/logos/logo_color_small.png")"><span class = "or-m-left-h-em">OpenRecipes - "TODO motto"</span></h3>
+            <ul class = "nav nav-tabs">
+                <li @if(active == "Home")              { class = "active" }><a href = "TODO home link">TODO: home by language</a></li>
+                <li @if(active == "Recipe Browser")    { class = "active" }><a href = "TODO browser link">TODO: browser by language</a></li>
+                <li>TODO: Language selector</li>
+            </ul>
+        </div>
+
+        <div class = "container">
+            <div class = "row">
+                @showMessage()
+            </div>
+        </div>
+        
+        <div class = "container">
+            @content
+        </div>
+    </body>
+</html>

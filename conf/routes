@@ -11,7 +11,7 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 
 # Home page
-GET     /                           controllers.PublicController.index()
+GET     /                           controllers.publicly.Home.index()
 
 ###############################################################################
 # PRIVATE PART
