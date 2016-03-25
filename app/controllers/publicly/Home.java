@@ -18,7 +18,9 @@
 
 package controllers.publicly;
 
+import models.Language;
 import play.Logger;
+import play.api.mvc.Call;
 import play.mvc.Controller;
 import play.mvc.Result;
 import views.html.publicviews.home.*;
@@ -67,6 +69,47 @@ public class Home extends Controller
         (
             home.render()
         );
+
+        return result;
+    }
+    
+    /**
+     * Changes the language of the whole site (does not affect search results).
+     *
+     * @param languageId    The target language's id.
+     * @param previous      The current url. Will be used to return to after the language has changed.
+     *
+     * @return Returns the previous page but with the new language settings effective.
+     * */
+    public Result changeLanguage(Long languageId, String previous)
+    {
+        Logger.debug(Home.class.getName() + ".changeLanguage(): \n" +
+            "    languageId = " + languageId + "\n" +
+            "    previous   = " + previous
+        );
+
+        Result result = index();
+
+        /* Validate language. */
+        if(Language.find.byId(languageId) != null)
+        {
+            /* OK, change to the new language. */
+            session("activeLanId", languageId.toString());
+
+            // TODO: i18n
+            flash("success", "Changed language!");
+
+            /*
+             * The URL string is not checked, since in case of an invalid
+             * URL the home page will be returned.
+             */
+            result = redirect(new Call("GET", previous, null));
+        }
+        else
+        {
+            // TODO: i18n
+            flash("error", "Failed to change language!");
+        }
 
         return result;
     }

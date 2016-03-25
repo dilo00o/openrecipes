@@ -1,0 +1,15 @@
+main.motto=Search better for recipes!
+
+welcome.title=Welcome to OpenRecipes!
+
+introduction.title=Introduction
+
+introduction.text=OpenRecipes is about helping you find what to cook next. It has advanced searching features. You can search for recipes based on various criteria. \
+You can select which ingredients to include or exclude, and give other constraints, like search based on tags.
+
+language.name=Language
+language.en=English
+language.hu=Hungarian
+
+menu.title.home=Home
+menu.title.browse=Browse Recipes

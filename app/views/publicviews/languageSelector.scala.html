@@ -1,0 +1,50 @@
+@*
+ *
+ *  Copyright 2016 Oliver Dozsa
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ *@
+
+@()
+
+@import play.i18n._
+
+<li class = "dropdown pull-right">
+    <a id = "drop4" role = "button" data-toggle = "dropdown" href = "#">
+        @getMessageByLanguage("language.name")
+        <b class = "caret"></b>
+    </a>
+    <ul id = "menu1" class = "dropdown-menu" role = "menu" aria-labelledby = "drop4">
+        @for(lan <- Language.find.all()){
+            <li role = "presentation">
+                <a role = "menuitem" tabindex = "-1" href = "@controllers.publicly.routes.Home.changeLanguage(lan.id, request.uri)">
+                    <div class = "row">
+                        <div class = "col-sm-3">
+                            @if(session.containsKey("activeLanId")){
+                                @if(lan.id == Long.parseLong(session.get("activeLanId"))){
+                                    <span class = "glyphicon glyphicon-ok"></span>
+                                }
+                            }
+                        </div>
+                        <div class = "col-sm-9">
+                            @getMessageByLanguage("language." + lan.isoName)
+                        </div>
+                    </div>
+                </a>
+            </li>
+        }
+    </ul>
+</li>

@@ -28,7 +28,7 @@
         <meta name = "description" content = "">
         <meta name = "author" content = "">
 
-        <title>OpenRecipes - Search better for recipes (TODO: Motto)</title>
+        <title>OpenRecipes - @getMessageByLanguage("main.motto")</title>
     
         <!-- Favicon -->
         <link rel = "shortcut icon" type = "image/png" href="@routes.Assets.versioned("images/favicon.png")">
@@ -53,11 +53,11 @@
   
     <body>
         <div class = "container-fluid">
-            <h3 class = "or-m-left-h-em"><img src = "@routes.Assets.versioned("images/logos/logo_color_small.png")"><span class = "or-m-left-h-em">OpenRecipes - "TODO motto"</span></h3>
+            <h3 class = "or-m-left-h-em"><img src = "@routes.Assets.versioned("images/logos/logo_color_small.png")"><span class = "or-m-left-h-em">OpenRecipes - @getMessageByLanguage("main.motto")</span></h3>
             <ul class = "nav nav-tabs">
-                <li @if(active == "Home")              { class = "active" }><a href = "TODO home link">TODO: home by language</a></li>
-                <li @if(active == "Recipe Browser")    { class = "active" }><a href = "TODO browser link">TODO: browser by language</a></li>
-                <li>TODO: Language selector</li>
+                <li @if(active == "Home")              { class = "active" }><a href = "#">@getMessageByLanguage("menu.title.home")</a></li>
+                <li @if(active == "Recipe Browser")    { class = "active" }><a href = "#">@getMessageByLanguage("menu.title.browse")</a></li>
+                @languageSelector()
             </ul>
         </div>
 

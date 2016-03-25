@@ -1,0 +1,15 @@
+main.motto=Keress receptekre!
+
+welcome.title=Üdv az OpenRecipes oldalán!
+
+introduction.title=Bemutatkozás
+
+introduction.text=Az OpenRecipes olyan receptgyűjtemény, amely segít, hogy mit főzz legközelebb. Lehetőség van hozzávalókat \
+felvenni, illetve kerülendő hozzávalókat beállítani. Egyéb lehetőségek, mint például a tag alapú szűrés is rendelkezésre áll.
+
+language.name=Nyelv
+language.en=Angol
+language.hu=Magyar
+
+menu.title.home=Kezdőlap
+menu.title.browse=Receptek keresése

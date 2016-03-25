@@ -13,6 +13,9 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 # Home page
 GET     /                           controllers.publicly.Home.index()
 
+# Language change
+GET     /changeLanguage             controllers.publicly.Home.changeLanguage(l: Long ?= 0, p: String ?= "/")
+
 ###############################################################################
 # PRIVATE PART
 ###############################################################################
