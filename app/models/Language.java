@@ -62,7 +62,7 @@ public class Language extends Model
     /**
      * Finder.
      */
-    public static Finder<Long, Language> find = new Finder<Long, Language>(Language.class);
+    public static Model.Finder<Long, Language> find = new Model.Finder<Long, Language>(Language.class);
 
 
 

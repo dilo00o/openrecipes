@@ -55,8 +55,8 @@
         <div class = "container-fluid">
             <h3 class = "or-m-left-h-em"><img src = "@routes.Assets.versioned("images/logos/logo_color_small.png")"><span class = "or-m-left-h-em">OpenRecipes - @getMessageByLanguage("main.motto")</span></h3>
             <ul class = "nav nav-tabs">
-                <li @if(active == "Home")              { class = "active" }><a href = "#">@getMessageByLanguage("menu.title.home")</a></li>
-                <li @if(active == "Recipe Browser")    { class = "active" }><a href = "#">@getMessageByLanguage("menu.title.browse")</a></li>
+                <li @if(active == "Home")              { class = "active" }><a href = "@controllers.publicly.routes.Home.index()">@getMessageByLanguage("menu.title.home")</a></li>
+                <li @if(active == "Recipe Browser")    { class = "active" }><a href = "@controllers.publicly.routes.RecipeBrowser.searchByIngredients()">@getMessageByLanguage("menu.title.browse")</a></li>
                 @languageSelector()
             </ul>
         </div>

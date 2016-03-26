@@ -9,12 +9,20 @@
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
-
 # Home page
 GET     /                           controllers.publicly.Home.index()
 
 # Language change
 GET     /changeLanguage             controllers.publicly.Home.changeLanguage(l: Long ?= 0, p: String ?= "/")
+
+
+# Search based on recipe properties.
+GET     /browse/recipes/search/ingredients              controllers.publicly.RecipeBrowser.searchByIngredients()
+
+
+# Search based on recipe properties.
+GET     /browse/recipes/search/recipeprop               controllers.publicly.RecipeBrowser.searchByRecipeProperties()
+
 
 ###############################################################################
 # PRIVATE PART

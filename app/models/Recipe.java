@@ -42,6 +42,21 @@ public class Recipe extends Model
 
     /* -- PUBLIC ATTRIBUTES ------------------------------------------------ */
     
+    /* Group ids for included ingredients. */
+    public static final Long GROUP_ID_A = 1L;
+    public static final Long GROUP_ID_B = 2L;
+    public static final Long GROUP_ID_C = 3L;
+    public static final Long GROUP_ID_D = 4L;
+    public static final Long GROUP_ID_E = 5L;
+    public static final Long GROUP_ID_F = 6L;
+
+    public static final Long GROUP_ID_0 = 0L;
+    
+    /**
+     * The maximum number of ingredients used in search.
+     * */
+    public static final Integer MAX_NUM_OF_INGREDIENTS = 30;
+    
     /**
      * The unique id.
      * */

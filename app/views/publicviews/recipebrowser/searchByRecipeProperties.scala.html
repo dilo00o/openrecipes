@@ -18,24 +18,10 @@
  *
  *@
 
-@import publicviews._
+@import publicviews.main
 
-
-@main("Home")("Home")("")(""){
-    <h1>@getMessageByLanguage("welcome.title")</h1>
+@main("Recipe Browser")("Recipe Browser")("")(""){
+    <h1>Recipe Browser</h1>
     
-    
-    <div class = "or-page-content">
-        <div class = "row">
-            <div class = "pull-left col-sm-12">
-                <h2>
-                    @getMessageByLanguage("introduction.title")
-                </h2>
-                <div style = "text-align: justify;">
-                    @getMessageByLanguage("introduction.text")
-                </div>
-            </div>
-        </div>
-        
-    </div>
+    @menutab("sbr")
 }
