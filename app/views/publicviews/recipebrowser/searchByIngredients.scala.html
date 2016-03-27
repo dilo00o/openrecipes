@@ -18,10 +18,216 @@
  *
  *@
 
-@import publicviews.main
+@import publicviews._
+@import helper._
 
-@main("Recipe Browser")("Recipe Browser")("")(""){
+@main("Recipe Browser")("Recipe Browser"){
+
+    <!-- Tagsinput CSS -->
+    <link href = "@routes.Assets.versioned("stylesheets/tagsinput/bootstrap-tagsinput.css")" rel = "stylesheet">
+    
+    <!-- Typeahead bootstrap CSS -->
+    <link href = "@routes.Assets.versioned("stylesheets/typeahead-bootstrap/typeahead.js-bootstrap.css")" rel = "stylesheet">
+    
+    
+    
+    
+    <!-- Typeahead JS -->
+    <script src = "@routes.Assets.versioned("javascripts/typeahead/typeahead.bundle.min.js")"></script>
+    
+    <!-- Tagsinput JS -->
+    <script src = "@routes.Assets.versioned("javascripts/tagsinput/bootstrap-tagsinput.min.js")"></script>
+    
+    
+}{
     <h1>Recipe Browser</h1>
     
     @menutab("sbi")
+    
+    <div class = "or-page-content">
+    
+        @form(controllers.publicly.routes.RecipeBrowser.exec_searchByIngredients(), 'role -> "form", 'id -> "or-rec-browser-sbi-form") {
+            
+            <h3>Search by ingredients</h3>
+            
+            <div class = "row">
+                <div class = "col-sm-9 form-group">
+                    <label>Included ingredients</label>
+                    <input type = "text" class = "form-control" id = "or-rec-browser-sbi-included-ing-input">
+                </div>
+                
+                <div class = "col-sm-3 form-group">
+                    <label>Search language</label>
+                    <select class = "form-control" id = "or-rec-browser-sbi-included-ing-language">
+                        @for(lan <- Language.find.all()){
+                            <option value = "@lan.id">@getMessageByLanguage("language." + lan.isoName)</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            
+            <div class = "row">
+                <div class = "col-sm-12 form-group pull-left">
+                    <label class = "radio-inline">
+                        <input type = "radio" name = "srm" id = "or-rec-browser-default-search-option" value = "1">
+                        Exactly containing these ingredients.
+                    </label>
+                    
+                    <label class = "radio-inline">
+                        <input type = "radio" name = "srm" value = "2">
+                        At least containing these ingredients.
+                    </label>
+                    
+                    <label class = "radio-inline">
+                        <input type = "radio" name = "srm" value = "3">
+                        Contains any of these.
+                    </label>
+                    
+                    <label class = "radio-inline">
+                        <input type = "radio" name = "srm" id = "or-rec-browser-group-mode-search-option" value = "4">
+                        Group mode.
+                    </label>
+                </div>
+            </div>
+            
+            <div class = "or-vertical-space">
+            </div>
+            
+            <div class = "row">
+                <div class = "col-sm-9 form-group">
+                    <label>Excluded ingredients</label>
+                    <input type = "text" class = "form-control"  id = "or-rec-browser-sbi-excluded-ing-input">
+                </div>
+                
+                <div class = "col-sm-3 form-group">
+                    <label>Search language</label>
+                    <select class = "form-control" id = "or-rec-browser-sbi-excluded-ing-language">
+                        @for(lan <- Language.find.all()){
+                            <option value = "@lan.id">@getMessageByLanguage("language." + lan.isoName)</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            
+            <h4>Search for ingredients by tags</h4>
+    
+            <div class = "row">
+                <div class = "col-sm-8 form-group">
+                    <label>Search</label>
+                    <input type = "text" class = "form-control"  id = "or-rec-browser-sbi-search-ing-tags">
+                </div>
+    
+                <div class = "col-sm-2 form-group">
+                    <label>Results language</label>
+                    <select class = "form-control" id = "or-rec-browser-sbi-search-ing-tags-language">
+                        @for(lan <- Language.find.all()){
+                            <option value = "@lan.id">@getMessageByLanguage("language." + lan.isoName)</option>
+                        }
+                    </select>
+                </div>
+    
+                <div class = "col-sm-2 form-group">
+                    <label>Relation</label>
+                    <select class = "form-control" id = "or-rec-browser-sbi-search-ing-tags-rel-select">
+                        <option value = "and">AND</option>
+                        <option value = "or">OR</option>
+                    </select>
+                </div>
+            </div>
+            
+            <h5>Search Results</h5>
+            <div class = "row">
+                <div id = "or-rec-browser-sbi-search-ing-results" class = "col-sm-12 form-group">
+                </div>
+            </div>
+            
+            <div class = "row">
+                <div class = "col-sm-2">
+                    <label style = "visibility: hidden;">Select all</label>
+                    <button type = "button" class = "btn btn-block btn-default" id = "or-rec-browser-sbi-search-ing-btn-select-all">Select all</button>
+                </div>
+    
+                <div class = "col-sm-2">
+                    <label style = "visibility: hidden;">Exclude</label>
+                    <button type = "button" class = "btn btn-block btn-default" id = "or-rec-browser-sbi-search-ing-btn-exclude">Exclude selected</button>
+                </div>
+    
+                <div class = "col-sm-2">
+                    <label style = "visibility: hidden;">Include</label>
+                    <button type = "button" class = "btn btn-block btn-default" id = "or-rec-browser-sbi-search-ing-btn-include">Include selected</button>
+                </div>
+            </div>
+            
+            <div class = "row">
+                <div class = "col-sm-2 form-group pull-right">
+                    <label style = "visibility: hidden;">Search</label>
+                    <button type = "button" class = "form-control btn btn-primary" id = "or-rec-browser-sbi-search">Search recipes</button>
+                </div>
+            </div>
+            
+            <input id = "or-rec-browser-sbi-form-inc-ing" type = "hidden" name = "ini" />
+            <input id = "or-rec-browser-sbi-form-exc-ing" type = "hidden" name = "exi" />
+            <input id = "or-rec-browser-sbi-form-sch-lan" type = "hidden" name = "srl" />
+        }
+        
+        <div class = "dropdown clearfix or-context-menu" id = 'or-rec-browser-tags-context-menu'>
+            <ul class = "dropdown-menu" role = "menu" aria-labelledby = "or-context-menu" style = "display:block;position:static;margin-bottom:5px;">
+                <li><a id = "or-rec-browser-tags-context-menu-group-A" tabindex="-1" href="#"> <span id = "or-rec-browser-tags-context-menu-group-A-tick" class = "glyphicon glyphicon-ok"></span> Group A<span class = 'or-context-menu-value'>A</span></a></li>
+                <li><a id = "or-rec-browser-tags-context-menu-group-B" tabindex="-1" href="#"> <span id = "or-rec-browser-tags-context-menu-group-B-tick" class = "glyphicon glyphicon-ok"></span> Group B<span class = 'or-context-menu-value'>B</span></a></li>
+                <li><a id = "or-rec-browser-tags-context-menu-group-C" tabindex="-1" href="#"> <span id = "or-rec-browser-tags-context-menu-group-C-tick" class = "glyphicon glyphicon-ok"></span> Group C<span class = 'or-context-menu-value'>C</span></a></li>
+                <li><a id = "or-rec-browser-tags-context-menu-group-D" tabindex="-1" href="#"> <span id = "or-rec-browser-tags-context-menu-group-D-tick" class = "glyphicon glyphicon-ok"></span> Group D<span class = 'or-context-menu-value'>D</span></a></li>
+                <li><a id = "or-rec-browser-tags-context-menu-group-E" tabindex="-1" href="#"> <span id = "or-rec-browser-tags-context-menu-group-E-tick" class = "glyphicon glyphicon-ok"></span> Group E<span class = 'or-context-menu-value'>E</span></a></li>
+                <li><a id = "or-rec-browser-tags-context-menu-group-F" tabindex="-1" href="#"> <span id = "or-rec-browser-tags-context-menu-group-F-tick" class = "glyphicon glyphicon-ok"></span> Group F<span class = 'or-context-menu-value'>F</span></a></li>
+            </ul>
+        </div>
+    
+    </div>
+    
+    <script>
+        $(document).ready
+        (
+            function()
+            {
+            	@utils_js()
+            	
+            	/* -- SEARCH BY INGREDIENTS INIT ---------------- */
+            	
+                var ingredientsBH = new Bloodhound
+                ({
+                    remote: 
+                    {
+                    	url: "@controllers.publicly.routes.RecipeBrowser.ingredients("")?q=" + "%QUERY" + "&l=" + $('#or-rec-browser-sbi-excluded-ing-language').val(),
+                    	wildcard: "%QUERY"
+                    },
+                    queryTokenizer: Bloodhound.tokenizers.whitespace,
+                    datumTokenizer: Bloodhound.tokenizers.whitespace
+                });
+            	ingredientsBH.initialize();
+            	
+                
+                
+                /* Included. */
+                /* Tags input init. */
+                $('#or-rec-browser-sbi-included-ing-input').tagsinput
+                (
+                    {
+                        itemValue: "id",
+                        itemText:  "text",
+                        tagId:     'or-rec-browser-sbi-included-ing-',
+                        tagClass:  determineClass,
+                        typeaheadjs:
+                        {
+                            source: ingredientsBH.ttAdapter(),
+                            displayKey: "value",
+                            valueKey: "value"
+                        }
+                    }
+                );
+                
+                /* TODO: add item */
+            	
+            	$('.bootstrap-tagsinput').addClass('form-control');
+            }
+        );
+    </script>
 }

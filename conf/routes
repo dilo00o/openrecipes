@@ -19,9 +19,16 @@ GET     /changeLanguage             controllers.publicly.Home.changeLanguage(l: 
 # Search based on recipe properties.
 GET     /browse/recipes/search/ingredients              controllers.publicly.RecipeBrowser.searchByIngredients()
 
+# Execute search based on ingredients.
+GET     /browse/recipes/search/exec/ingredients         controllers.publicly.RecipeBrowser.exec_searchByIngredients()
+
 
 # Search based on recipe properties.
 GET     /browse/recipes/search/recipeprop               controllers.publicly.RecipeBrowser.searchByRecipeProperties()
+
+
+# Ingredients (AJAX)
+GET     /browse/recipes/getingredients                  controllers.publicly.RecipeBrowser.ingredients(q ?= "", l: Long ?= 0)
 
 
 ###############################################################################

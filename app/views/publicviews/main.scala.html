@@ -18,7 +18,7 @@
  *
  *@
 
-@(title: String)(active: String)(moreCss: String)(moreJs: String)(content: Html)
+@(title: String)(active: String)(moreHeadings: Html)(content: Html)
 
 <!DOCTYPE html>
 <html>
@@ -38,9 +38,6 @@
         
         <!-- App specific settings. -->
         <link href = "@routes.Assets.versioned("stylesheets/openrecipes/openrecipes.css")" rel = "stylesheet">
-        
-        @moreCss
-        
                 
         <!-- jQuery -->
         <script src = "@routes.Assets.versioned("javascripts/jquery/jquery-2.2.2.min.js")"></script>
@@ -48,7 +45,7 @@
         <!-- Bootstrap JS. -->
         <script src = "@routes.Assets.versioned("javascripts/bootstrap/bootstrap.min.js")"></script>
         
-        @moreJs
+        @moreHeadings
     </head>
   
     <body>

@@ -18,7 +18,15 @@
 
 package controllers.publicly;
 
+import java.util.List;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import models.Ingredient;
+import models.IngredientName;
 import play.Logger;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 
@@ -70,6 +78,23 @@ public class RecipeBrowser extends Controller
     }
     
     /**
+     * Executes the search based on included / excluded ingredients.
+     *
+     * @return The result page (found recipes).
+     * */
+    public Result exec_searchByIngredients()
+    {
+        Logger.debug(RecipeBrowser.class.getName() + ".exec_searchByIngredients():\n");
+
+        Result result = null;
+
+        /* TODO */
+        result = searchByIngredients();
+
+        return result; 
+    }
+    
+    /**
      * Search for recipes based on properties.
      *
      * @return Page for search by recipe properties.
@@ -81,6 +106,68 @@ public class RecipeBrowser extends Controller
         Result result = null;
 
         result = ok(searchByRecipeProperties.render());
+        
+        return result;
+    }
+    
+    /**
+     * Used for getting ingredients (via AJAX) for searching by name, and language.
+     * 
+     * @param query         The query string.
+     * @param languageID    The id of the language in which the search should be performed.
+     * 
+     * @return The available ingredient names as a json object, according to typeahead format.
+     * */
+    public Result ingredients(String query, Long languageID)
+    {
+        Logger.debug(RecipeBrowser.class.getName() + ".ingredients():\n" +
+            "    query      = " + query + "\n" +
+            "    languageID = " + languageID
+        );
+
+        Result result = null;
+
+        ArrayNode jsonResults = Json.newObject().arrayNode();
+
+        if(query != null && languageID != null)
+        {
+            if(query.length() > 0)
+            {
+                List<Ingredient> ingredients = Ingredient.getIngredientsLikeByLanguage(query, languageID);
+
+                for(Ingredient ingredient: ingredients)
+                {
+                    IngredientName ingName = ingredient.getNameByLanguage(languageID);
+
+                    if(ingName != null && ingName.name != null)
+                    {
+                        ObjectNode queryJsonResult = Json.newObject();
+
+                        queryJsonResult.put("value", ingName.name);
+                        queryJsonResult.put("id", ingredient.id);
+
+                        ArrayNode tokens = queryJsonResult.putArray("tokens");
+                        tokens.add(ingName.name);
+
+                        jsonResults.add(queryJsonResult);
+                    }
+                    else
+                    {
+                        if(ingName == null)
+                        {
+                            Logger.warn(RecipeBrowser.class.getName() + ".ingredients(): ingName is null!");
+                        }
+                        else
+                        {
+                            Logger.error(RecipeBrowser.class.getName() + ".ingredients(): ingName's name is null!\n" +
+                                "    ingName.id = " + ingName.id);
+                        }
+                    }
+                }
+            }
+        }
+
+        result = ok(jsonResults);
         
         return result;
     }

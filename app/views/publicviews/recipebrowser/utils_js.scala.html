@@ -1,0 +1,573 @@
+@*
+ *
+ *  Copyright 2016 Oliver Dozsa
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ *@
+
+/* The valid groups. */
+var validGroups = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+/**
+ * Shows the "Already added!" tooltip over the given element.
+ *
+ * @@param elem    The element that should have to popup.
+ */
+function showAlreadyAddedTooltip(elem)
+{
+    $(elem).popover
+    (
+        {
+            placement: "top",
+            content:   "Already added!",
+            trigger:   "manual"
+        }
+    );
+    
+    $(elem).popover('show');
+    
+    setTimeout
+    (
+        function()
+        {
+            $(elem).popover('destroy');
+            
+            /* Workaround, since destroy is not working properly in group mode. */
+            $(".popover").remove();
+        },
+        1500
+    );
+}
+
+/**
+ * Tries to add the item to the included list, if not already added there, or not added to the excluded list.
+ *
+ * @@param item             The item to add.
+ * @@param included         The list where the item should be included.
+ * @@param excluded         The list from which the item should be excluded.
+ * @@param groupModeElem    The group mode element.
+ */
+function addItem(item, included, excluded, groupModeElem)
+{
+    var itemToAdd =
+    {
+        "text":  item.value,
+        "id":    item.id,
+        groups:
+        {
+            A: true,
+            B: false,
+            C: false,
+            D: false,
+            E: false,
+            F: false
+        },
+        tagsinputRef: included
+    };
+
+    if(item.groups != undefined)
+    {
+        itemToAdd.groups = item.groups;
+    }
+                            
+    var itemIndex = excluded.tagsinput('getIndex', itemToAdd)
+    
+    if(itemIndex >= 0)
+    {
+        /* Ingredient is present in the excluded list. We won't add it here, just show a tooltip, that it's already added. */
+        var itemJqObj = excluded.tagsinput('getItemJqObj', itemIndex);
+        
+        showAlreadyAddedTooltip(itemJqObj);
+    }
+    else
+    {
+        /* Item is not present in the excluded list, let's check in the included list. */
+        itemIndex = included.tagsinput('getIndex', itemToAdd);
+        
+        if(itemIndex >= 0)
+        {
+            /* Item is already added to the included list. We shouldn't add it twice, so show the popup. */
+            var itemJqObj = included.tagsinput('getItemJqObj', itemIndex);
+            
+            showAlreadyAddedTooltip(itemJqObj);
+        }
+        else
+        {
+            /* Item is not present in the included list, we can add it now. */
+            included.tagsinput('add', itemToAdd);
+
+            if(isGroupModeActive(groupModeElem))
+            {
+                /* Group mode is active, context menu should be added to the new tag,
+                   and tags should be reordered. */
+                orderByGroups(included, attachTagsContextMenu);
+            }
+        }
+    }
+}
+
+/**
+ * Reorganizes a tagsinput so that tags in the same group will be put next to
+ * each other.
+ *
+ * @@param tagsinput                        The tagsinput object to reorganize.
+ * @@param attachTagsContextMenuFunction    The attach tags context menu function.
+ */
+function orderByGroups(tagsinput, attachTagsContextMenuFunction)
+{
+    var items = tagsinput.tagsinput('items');
+    
+    var itemGroupValue = function(groups)
+    {
+        var result = 10;
+        
+        if(groups.A)
+        {
+            result = 1;
+        }
+        else if(groups.B)
+        {
+            result = 2;
+        }
+        else if(groups.C)
+        {
+            result = 3;
+        }
+        else if(groups.D)
+        {
+            result = 4;
+        }
+        else if(groups.E)
+        {
+            result = 5;
+        }
+        else if(groups.F)
+        {
+            result = 6;
+        }
+        else
+        {
+            /* Nothing to do. */
+        }
+        
+        return result;
+    };
+    
+    items.sort
+    (
+        function(a, b)
+        {
+            return itemGroupValue(a.groups) - itemGroupValue(b.groups);
+        }
+    );
+    
+    var itemsCopy = new Array();
+    
+    var i = 0;
+    
+    for(i = 0; i < items.length; i++)
+    {
+        itemsCopy.push(items[i]);
+    }
+    
+    /* Remove all the elements (with events triggered.). */
+    tagsinput.tagsinput('removeAll');
+    
+    /* Add the elements according to the order. */
+    for(i = 0; i < itemsCopy.length; i++)
+    {
+        tagsinput.tagsinput('add', itemsCopy[i]);
+    }
+    
+    tagsinput.tagsinput('refresh');
+
+    renderTags(tagsinput);
+    
+    if(attachTagsContextMenuFunction)
+    {
+        attachTagsContextMenuFunction(tagsinput);
+    }
+}
+
+/**
+ * Puts the given tag in the given group.
+ *
+ * @@param tagsinput      The tagsinput object.
+ * @@param tagId          The id of the tag (number).
+ * @@param targetGroup    The target group (A - F).
+ */
+function toggleGroup(tagsinput, tagId, targetGroup)
+{
+    var item = tagsinput.tagsinput('getItemByValue', tagId);
+    
+    var i;
+    
+    /* Find the first group to which this tag belongs. */
+    var previousGroup = undefined;
+    
+    for(i = 0; i < validGroups.length; i++)
+    {
+        if(item.groups[validGroups[i]])
+        {
+            previousGroup = validGroups[i];
+            
+            break;
+        }
+    }
+    
+    if(item != undefined)
+    {
+        item.groups[targetGroup] = !item.groups[targetGroup];
+        
+        /* Check if the item is in no group. We don't allow it, the item must be in at least one group. */
+        var isInNoGroup = true;
+        
+        for(i = 0; i < validGroups.length && isInNoGroup; i++)
+        {
+            if(item.groups[validGroups[i]])
+            {
+                isInNoGroup = false;
+            }
+        }
+        
+        if(isInNoGroup)
+        {
+            /* The item will be put in the previous group. */
+            item.groups[previousGroup] = true;
+        }
+        else
+        {
+            /* Trigger item changed event. */
+            var event  = jQuery.Event("itemChanged");
+            event.item = item;
+
+            tagsinput.trigger(event);
+        }
+    }
+}
+
+/**
+ * Resets the group of a tag.
+ *
+ * @@param tagsinput      The tagsinput object.
+ * @@param tagId          The id of the tag (number).
+ */
+function resetGroup(tagsinput, tagId)
+{
+    var item = tagsinput.tagsinput('getItemByValue', tagId);
+
+    if(item != undefined)
+    {
+        item.groups.A = true;
+        item.groups.B = false;
+        item.groups.C = false;
+        item.groups.D = false;
+        item.groups.E = false;
+        item.groups.F = false;
+    }
+}
+
+/**
+ * Determines the class for an item.
+ *
+ * @@param item    The item.
+ */
+function determineClass(item)
+{
+    var result = 
+        "or-tagsinput-tag " +
+        "label " +
+        "label-info ";
+        
+    var i;
+    
+    for(i = 0; i < validGroups.length; i++)
+    {
+        if(item.groups[validGroups[i]])
+        {
+            result += " or-tagsinput-tag-group-" + validGroups[i] + " ";
+        }
+    }
+    
+    return result;
+}
+
+/* The clicked tag. */
+var clickedTag = undefined;
+                
+/**
+ * Checks whether group mode is active on the give HTML radio button element.
+ *
+ * @@param groupModeElem    The radio button jquery object.
+ */
+function isGroupModeActive(groupModeElem)
+{
+    return groupModeElem.is(':checked');
+}
+
+/**
+ * Attaches context menu to tags of the given tagsinput.
+ *
+ * @@param tagsinput    The tagsinput.
+ */
+function attachTagsContextMenu(tagsinput)
+{
+    /* Detach first. */
+    tagsinput.parent().find('.or-tagsinput-tag').off('contextmenu');
+    
+    tagsinput.parent().find('.or-tagsinput-tag').on
+    (
+        'contextmenu',
+        function(event)
+        {   
+            clickedTag = $(this);
+            
+            $('#or-rec-browser-tags-context-menu').css
+            (
+                {
+                    display: 'block',
+                    left:    event.pageX,
+                    top:     event.pageY
+                }
+            );
+
+            var tagId = getTagId(tagsinput, clickedTag);
+
+            var item = tagsinput.tagsinput('getItemByValue', tagId);
+
+            var i;
+
+            for(i = 0; i < validGroups.length; i++)
+            {
+                var groupId = validGroups[i];
+                
+                if(item.groups[groupId])
+                {
+                    $("#or-rec-browser-tags-context-menu-group-" + groupId + "-tick").css({"visibility": "visible"});
+                }
+                else
+                {
+                    $("#or-rec-browser-tags-context-menu-group-" + groupId + "-tick").css({"visibility": "hidden"});
+                }
+            }
+            
+            return false;
+        }
+    );
+}
+
+/**
+ * Initializes event handler for clicking on the context menu item for the tags of the 
+ * given tagsinput.
+ *
+ * @@param tagsinput    The tagsinput.
+ */
+function initTagContextMenuClicked()
+{
+    /* Remove previous handler if present. */
+    $('#or-rec-browser-tags-context-menu').off('click', 'a');
+    
+    $('#or-rec-browser-tags-context-menu').on
+    (
+        'click',
+        'a',
+        function()
+        {
+            /* Retrieve selected group, and id of selected tag. */
+            var selectedGroup = $(this).find('.or-context-menu-value').text();
+
+            var tagsinput = $("#" + clickedTag.attr('id')).data().item.tagsinputRef;
+
+            var tagId = getTagId(tagsinput, clickedTag);
+            
+            /* Put to group, then reorder by group. */
+            toggleGroup(tagsinput, tagId, selectedGroup);
+            orderByGroups(tagsinput, attachTagsContextMenu);
+            
+            $('#or-rec-browser-tags-context-menu').hide();
+            
+            return false;
+        }
+    );
+}
+
+/**
+ * Actions done when group mode is turned on for the given tagsinput.
+ *
+ * @@param tagsinput    The tagsinput.
+ */
+function groupModeOn(tagsinput)
+{
+    attachTagsContextMenu(tagsinput);
+    
+    initTagContextMenuClicked();
+    
+    orderByGroups(tagsinput, attachTagsContextMenu);
+}
+
+
+/**
+ * Actions done when group mode is turned off for the given tagsinput.
+ *
+ * @@param tagsinput    The tagsinput.
+ */
+function groupModeOff(tagsinput)
+{
+    /* Hide context menu in case it's shown. */
+    $('#or-rec-browser-tags-context-menu').hide();
+    
+    /* Detach context menu handler. */
+    tagsinput.parent().find('.or-tagsinput-tag').off('contextmenu');
+    
+    
+    /* Put everything in group A. */
+    tagsinput.parent().find('.or-tagsinput-tag').each
+    (
+        function()
+        {
+            var tagId = getTagId(tagsinput, $(this));
+
+            resetGroup(tagsinput, tagId);
+        }
+    );
+    
+    orderByGroups(tagsinput);
+    
+    removeIndicators(tagsinput);
+    
+    /* Restore style */
+    tagsinput.parent().find('.or-tagsinput-tag').each
+    (
+        function()
+        {
+            $(this).css
+            (
+                {
+                    "min-width":   "0",
+                    "margin-left": "0",
+                    "height":      "auto",
+                }
+            );
+        }
+    );
+}
+
+/**
+ * Removes the group indicators (the small boxes with letter inside)
+ * from all of the tags of the given tagsinput.
+ *
+ * @@param tagsinput    The tagsinput.
+ */
+function removeIndicators(tagsinput)
+{
+    tagsinput.parent().find('.or-tagsinput-tag').each
+    (
+        function()
+        {   
+            $(this).find(".or-tagsinput-tag-indicator").remove();
+        }
+    );
+}
+
+/**
+ * Renders all tags of a tagsinput, i.e. increasing their size, and add group indicators to it.
+ *
+ * @@param tagsinput    The tagsinput.
+ */
+function renderTags(tagsinput)
+{
+    /* Remove previous tag indicators. */
+    removeIndicators(tagsinput);
+            
+    tagsinput.parent().find('.or-tagsinput-tag').each
+    (
+        function()
+        {
+            /* Set style. */
+            $(this).css
+            (
+                {
+                    "min-width":   "96px",
+                    "margin-left": "6px",
+                    "height":      "34px",
+                }
+            );
+            
+            var x = 4;
+            var y = $(this).height() + 8 - 20;
+
+            var offsetX = 15;
+            
+            var i = 0;
+            
+            for(i = 0; i < validGroups.length; i++)
+            {
+                if($(this).hasClass("or-tagsinput-tag-group-" + validGroups[i]))
+                {
+                    $(this).append("<span class = 'or-tagsinput-tag-indicator or-tagsinput-tag-indicator-group-" + validGroups[i] + "'>" + validGroups[i] + "</span>");
+
+                    $(this).find(".or-tagsinput-tag-indicator-group-" + validGroups[i]).css({left: x, top: y});
+
+                    x += offsetX;
+                }
+            }
+        }
+    );
+}
+
+/**
+ * Gets the id number of the given tag.
+ *
+ * @@param tasginput    The tagsinput.
+ * @@param tag          The tag.
+ *
+ * @@return The above mentioned id number.
+ */
+function getTagId(tagsinput, tag)
+{
+    var tiTagId = tagsinput.tagsinput('getTagId');
+
+    var result = tag.attr('id').split(tagsinput.tagsinput('getTagId'))[1];
+
+    return result;
+}
+
+/**
+ * Makes a copy of items without the tagsinput reference.
+ * @@param items    The items array.
+ *
+ * @@return The copy as written above.
+ */
+function copyItemsForStoring(items)
+{
+    var result = [];
+
+    var i = 0;
+
+    for(i = 0; i < items.length; i++)
+    {
+        var storedItem =
+        {
+            text:   items[i].text,
+            id:     items[i].id,
+            groups: items[i].groups
+        };
+
+        result.push(storedItem);
+    }
+
+    return result;
+}

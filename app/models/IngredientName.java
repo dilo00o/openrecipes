@@ -18,12 +18,18 @@
 
 package models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import com.avaje.ebean.Expr;
 import com.avaje.ebean.Model;
+
+import play.Logger;
 
 /**
  * Model of ingredient names.
@@ -83,6 +89,93 @@ public class IngredientName extends Model
     /* --------------------------------------------------------------------- */
 
     /* -- PUBLIC METHODS --------------------------------------------------- */
+    
+    /**
+     * Gets ingredient names with name like the given query string in the given language.
+     * 
+     * @param query         The query string.
+     * @param languageID    The id of the language.
+     * 
+     * @return List of ingredient names as described above, or an empty list if none found.
+     * */
+    public static List<IngredientName> getNamesLikeByLanguage(String query, Long languageID)
+    {
+        Logger.debug(IngredientName.class.getName() + ".getNamesLikeByLanguage()\n" +
+            "    query      = " + query + "\n" +
+            "    languageID = " + languageID
+        );
+
+        List<IngredientName> result = null;
+
+        if(query != null && languageID != null)
+        {
+            result = find
+                .fetch("ingredient")
+                .where()
+                    .ilike("name", "%" + query + "%")
+                    .eq("language_id", languageID)
+                .findList();
+        }
+        else
+        {
+            /* Log the erroneous parameter. */
+            if(query == null)
+            {
+                Logger.error(IngredientName.class.getName() + ".getNamesLikeByLanguage(): query is null!");
+            }
+
+            if(languageID == null)
+            {
+                Logger.error(IngredientName.class.getName() + ".getNamesLikeByLanguage(): languageID is null!");
+            }
+        }
+        
+        if(result == null)
+        {
+            /* Create empty list to fulfill return criteria. */
+            result = new ArrayList<IngredientName>();
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Gets an ingredient name by it's language.
+     *
+     * @param ingredientID    The id of the ingredient.
+     * @param languageID      The language ID.
+     *
+     * @return The above mentioned ingredient name, or null, if none found.
+     * */
+    public static IngredientName getNameByLanguage(Long ingredientID, Long languageID)
+    {
+        Logger.debug(IngredientName.class.getName() + ".getNameByLanguage()\n" +
+            "    ingredientID = " + ingredientID + "\n" +
+            "    languageID   = " + languageID
+        );
+
+        IngredientName result = null;
+
+        if(ingredientID != null && languageID   != null)
+        {
+            result = find.where().add(Expr.and(Expr.eq("language.id", languageID), Expr.eq("ingredient.id", ingredientID))).findUnique();
+        }
+        else
+        {
+            /* Log the erroneous parameter. */
+            if(ingredientID == null)
+            {
+                Logger.error(IngredientName.class.getName() + ".getNameByLanguage(): ingredientID is null!");
+            }
+
+            if(languageID == null)
+            {
+                Logger.error(IngredientName.class.getName() + ".getNameByLanguage(): languageID is null!");
+            }
+        }
+        
+        return result;
+    }
 
 
 

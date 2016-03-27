@@ -18,6 +18,7 @@
 
 package models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -27,6 +28,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 import com.avaje.ebean.Model;
+
+import play.Logger;
 
 /**
  * Model of ingredients.
@@ -87,6 +90,68 @@ public class Ingredient extends Model
     /* --------------------------------------------------------------------- */
 
     /* -- PUBLIC METHODS --------------------------------------------------- */
+    
+    /**
+     * Gets ingredients with names like the given query string in the given language.
+     * 
+     * @param query         The query string.
+     * @param languageID    The query language.
+     * 
+     * @return A list of ingredients as described above, or an empty list is returned, if none found.
+     * */
+    public static List<Ingredient> getIngredientsLikeByLanguage(String query, Long languageID)
+    {
+        Logger.debug(Ingredient.class.getName() + ".getIngredientsLikeByLanguage():\n" +
+            "    query      = " + query + "\n" +
+            "    languageID = " + languageID
+        );
+
+        List<Ingredient> result = new ArrayList<Ingredient>();
+        
+        List<IngredientName> names = IngredientName.getNamesLikeByLanguage(query, languageID);
+        
+        for(IngredientName name: names)
+        {
+            result.add(name.ingredient);
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Gets the name with the given language.
+     * 
+     * @param languageID    The id of the language.
+     * 
+     * @return The name with the given language, or null, if no name with the given language is found.
+     * */
+    public IngredientName getNameByLanguage(Long languageID)
+    {
+        Logger.debug(Ingredient.class.getName() + ".getNameByLanguage():\n" +
+            "    languageID = " + languageID
+        );
+
+        IngredientName result = null;
+
+        if(languageID != null)
+        {
+            for(IngredientName name: names)
+            {
+                if(name.language.id == languageID)
+                {
+                    result = name;
+
+                    break;
+                }
+            }
+        }
+        else
+        {
+            Logger.error(Ingredient.class.getName() + ".getNameByLanguage(): languageID is null!");
+        }
+        
+        return result;
+    }
 
 
 
