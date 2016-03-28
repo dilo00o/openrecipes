@@ -224,9 +224,58 @@
                     }
                 );
                 
-                /* TODO: add item */
+                $('#or-rec-browser-sbi-included-ing-input').tagsinput('input')
+                .bind
+                (
+                    'typeahead:select',
+                    $.proxy
+                    (
+                        function (obj, data)
+                        {
+                            addItem(data, $('#or-rec-browser-sbi-included-ing-input'), $('#or-rec-browser-sbi-excluded-ing-input'), $('#or-rec-browser-group-mode-search-option'));
+                            
+                            this.tagsinput('input').typeahead('val', '');
+                        },
+                        $('#or-rec-browser-sbi-included-ing-input')
+                    )
+                );
+                
+                /* Excluded. */
+                /* Tags input init. */
+                $('#or-rec-browser-sbi-excluded-ing-input').tagsinput
+                (
+                    {
+                        itemValue: "id",
+                        itemText:  "text",
+                        typeaheadjs:
+                        {
+                            source: ingredientsBH.ttAdapter(),
+                            displayKey: "value",
+                            valueKey: "value"
+                        }
+                    }
+                );
+                
+                $('#or-rec-browser-sbi-excluded-ing-input').tagsinput('input')
+                .bind
+                (
+                    'typeahead:select',
+                    $.proxy
+                    (
+                        function (obj, data)
+                        {
+                            addItem(data, $('#or-rec-browser-sbi-excluded-ing-input'), $('#or-rec-browser-sbi-included-ing-input'), $('#or-rec-browser-group-mode-search-option'));
+                            
+                            this.tagsinput('input').typeahead('val', '');
+                        },
+                        $('#or-rec-browser-sbi-excluded-ing-input')
+                    )
+                );
             	
             	$('.bootstrap-tagsinput').addClass('form-control');
+            	
+            	/* Make sure not group mode is selected as default. */
+                $('#or-rec-browser-default-search-option').prop("checked", true);
             }
         );
     </script>
