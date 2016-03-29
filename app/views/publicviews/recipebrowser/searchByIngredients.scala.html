@@ -36,7 +36,7 @@
     <script src = "@routes.Assets.versioned("javascripts/typeahead/typeahead.bundle.min.js")"></script>
     
     <!-- Tagsinput JS -->
-    <script src = "@routes.Assets.versioned("javascripts/tagsinput/bootstrap-tagsinput.min.js")"></script>
+    <script src = "@routes.Assets.versioned("javascripts/tagsinput/bootstrap-tagsinput-full.js")"></script>
     
     
 }{
@@ -203,7 +203,6 @@
                     datumTokenizer: Bloodhound.tokenizers.whitespace
                 });
             	ingredientsBH.initialize();
-            	
                 
                 
                 /* Included. */
@@ -224,8 +223,11 @@
                     }
                 );
                 
+                /* Tagsinput automatically listens to typeahead:selected. Turn it off and use our custom solution. */
+                $('#or-rec-browser-sbi-included-ing-input').tagsinput('input').off("typeahead:selected");
+                
                 $('#or-rec-browser-sbi-included-ing-input').tagsinput('input')
-                .bind
+                .on
                 (
                     'typeahead:select',
                     $.proxy
@@ -256,8 +258,11 @@
                     }
                 );
                 
+                /* Tagsinput automatically listens to typeahead:selected. Turn it off and use our custom solution. */
+                $('#or-rec-browser-sbi-excluded-ing-input').tagsinput('input').off("typeahead:selected");
+                
                 $('#or-rec-browser-sbi-excluded-ing-input').tagsinput('input')
-                .bind
+                .on
                 (
                     'typeahead:select',
                     $.proxy
