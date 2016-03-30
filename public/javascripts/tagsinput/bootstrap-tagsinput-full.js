@@ -183,8 +183,15 @@
       self.itemsArray.push(item);
 
       // add a tag element
+      /* Check tagid. */
+      var tagIdStr = '';
+      
+      if(tagId != undefined)
+      {
+        tagIdStr = 'id = ' + tagId + itemValue;
+      }
 
-      var $tag = $('<span class="tag ' + htmlEncode(tagClass) + (itemTitle !== null ? ('" title="' + itemTitle) : '') + '">' + htmlEncode(itemText) + '<span data-role="remove"></span></span>');
+      var $tag = $('<span ' + htmlEncode(tagIdStr) + ' class="tag ' + htmlEncode(tagClass) + (itemTitle !== null ? ('" title="' + itemTitle) : '') + '">' + htmlEncode(itemText) + '<span data-role="remove"></span></span>');
       $tag.data('item', item);
       self.findInputWrapper().before($tag);
       $tag.after(' ');

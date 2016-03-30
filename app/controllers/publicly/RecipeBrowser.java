@@ -18,6 +18,7 @@
 
 package controllers.publicly;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -25,6 +26,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import models.Ingredient;
 import models.IngredientName;
+import models.IngredientTag;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -167,6 +169,151 @@ public class RecipeBrowser extends Controller
             }
         }
 
+        result = ok(jsonResults);
+        
+        return result;
+    }
+    
+    /**
+     * Used for getting ingredient tags (via AJAX) for searching.
+     * 
+     * @param query             The query string.
+     * 
+     * @return The available ingredient tags as a json object, according to typeahead format.
+     * */
+    public Result ingredientTags(String query)
+    {
+        Logger.debug(RecipeBrowser.class.getName() + ".ingredientTags():\n" +
+            "    query = " + query
+        );
+
+        Result result = null;
+        
+        ArrayNode jsonResults = Json.newObject().arrayNode();
+
+        if(query != null)
+        {
+            if(query.length() > 0)
+            {
+                List<IngredientTag> tags = IngredientTag.getTagsByNameLike(query);
+
+                for(IngredientTag tag: tags)
+                {
+                    ObjectNode queryJsonResult = Json.newObject();
+
+                    /* We assume that name cannot be null (db restriction). */
+                    queryJsonResult.put("value", tag.name);
+                    queryJsonResult.put("id", tag.id);
+
+                    ArrayNode tokens = queryJsonResult.putArray("tokens");
+                    tokens.add(tag.name);
+
+                    jsonResults.add(queryJsonResult);
+                }
+            }
+        }
+        else
+        {
+            Logger.warn(RecipeBrowser.class.getName() + ".ingredientTags(): query is null!");
+        }
+        
+        result = ok(jsonResults);
+        
+        return result;
+    }
+    
+    /**
+     * Used for getting ingredients (AJAX) with given tags, and other restrictions.
+     *
+     * @param tagIDs        The ids of the tags (comma separated string).
+     * @param isAND         If set to true, there'll be an AND relation between the tags (by default, they are OR-ed.)
+     * @param languageID    The id of the language in which the search should be performed.
+     *
+     * @return The result ingredients as json.
+     * */
+    public Result ingredientsWithTags
+    (
+        String tagIDs,
+        boolean isAND,
+        Long languageID
+    )
+    {
+        Logger.debug(RecipeBrowser.class.getName() + ".ingredientsWithTags():\n" +
+            "    tagIDs     = " + tagIDs     + "\n" +
+            "    isAND      = " + isAND      + "\n" +
+            "    languageID = " + languageID
+        );
+
+        Result result = null;
+        
+        ArrayNode jsonResults = Json.newObject().arrayNode();
+
+        boolean isParamsValid = true;
+
+        /* Check for parameters validity. */
+        if(tagIDs     == null || languageID == null)
+        {
+            isParamsValid = false;
+        }
+        else
+        {
+            Logger.warn(RecipeBrowser.class.getName() + ".ingredientsWithTags(): params are not valid!");
+        }
+
+        if(isParamsValid)
+        {
+            String[] tagsIDsArray = tagIDs.split(",");
+
+            List<IngredientTag> tags = new ArrayList<IngredientTag>();
+
+            for(String tagIDStr: tagsIDsArray)
+            {
+                Long tagID        = Long.parseLong(tagIDStr);
+                IngredientTag tag = IngredientTag.find.byId(tagID);
+
+                if(tag != null)
+                {
+                    tags.add(tag);
+                }
+            }
+
+            List<Ingredient> ingredients;
+
+            ingredients = Ingredient.getIngredientsWithTags
+            (
+                tags,
+                isAND
+            );
+
+            for(Ingredient ingredient: ingredients)
+            {
+                IngredientName ingName = ingredient.getNameByLanguage(languageID);
+
+                if(ingName != null && ingName.name != null)
+                {
+                    ObjectNode jsonResult = Json.newObject();
+
+                    jsonResult.put("id", ingredient.id);
+                    jsonResult.put("name", ingName.name);
+
+                    jsonResults.add(jsonResult);
+                }
+                else
+                {
+                    if(ingName == null)
+                    {
+                        Logger.warn(RecipeBrowser.class.getName() + ".ingredientsWithTags(): ingName is null!");
+                    }
+                    else
+                    {
+                        Logger.error(RecipeBrowser.class.getName() + ".ingredientsWithTags(): ingName's name is null!\n" +
+                            "    ingName.id = " + ingName.id
+                        );
+                    }
+                }
+            }
+        }
+        
         result = ok(jsonResults);
         
         return result;

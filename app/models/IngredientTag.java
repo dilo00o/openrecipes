@@ -18,6 +18,7 @@
 
 package models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -26,6 +27,9 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
 import com.avaje.ebean.Model;
+import com.avaje.ebean.Query;
+
+import play.Logger;
 
 /**
  * Model class for ingredient tags.
@@ -79,6 +83,45 @@ public class IngredientTag extends Model
     /* --------------------------------------------------------------------- */
 
     /* -- PUBLIC METHODS --------------------------------------------------- */
+    
+    /**
+     * Get tags by name like the given name.
+     *
+     * @param nameLike      The name like parameter.
+     * @param languageId    The language id for the tags.
+     * 
+     * @return A list of tags. An empty list is returned, if no such tags found.
+     * */
+    public static List<IngredientTag> getTagsByNameLike(String nameLike)
+    {
+        Logger.debug(IngredientTag.class.getName() + ".getTagsByNameLike()\n" +
+            "    nameLike = " + nameLike
+        );
+
+        List<IngredientTag> result = null;
+
+        if(nameLike != null)
+        {
+            Query<IngredientTag> resultQuery = find
+                .where()
+                    .ilike("name", "%" + nameLike + "%")
+                .query();
+
+            result = resultQuery.findList();
+        }
+        else
+        {
+            Logger.warn(IngredientTag.class.getName() + ".getTagsByNameLike(): nameLike is null!");
+        }
+        
+        if(result == null)
+        {
+            /* Return an empty array to fulfill return criteria. */
+            result = new ArrayList<IngredientTag>();
+        }
+        
+        return result;
+    }
 
 
 

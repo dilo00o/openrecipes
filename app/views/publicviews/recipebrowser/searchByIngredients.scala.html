@@ -202,6 +202,7 @@
                     queryTokenizer: Bloodhound.tokenizers.whitespace,
                     datumTokenizer: Bloodhound.tokenizers.whitespace
                 });
+            	
             	ingredientsBH.initialize();
                 
                 
@@ -277,10 +278,340 @@
                     )
                 );
             	
-            	$('.bootstrap-tagsinput').addClass('form-control');
-            	
             	/* Make sure not group mode is selected as default. */
                 $('#or-rec-browser-default-search-option').prop("checked", true);
+            	
+                /* -- Group mode handling -------------------------- */
+                
+                $('input:radio[name="srm"]').change
+                (
+                    function()
+                    {   
+                        if($(this).is(':checked') && $(this).val() == '4')
+                        {
+                            groupModeOn($('#or-rec-browser-sbi-included-ing-input'));
+                        }
+                        else
+                        {
+                            groupModeOff($('#or-rec-browser-sbi-included-ing-input'));
+                        }
+                    }
+                );
+                
+                $(document).click
+                (
+                    function()
+                    {
+                        $('#or-rec-browser-tags-context-menu').hide();
+                    }
+                );
+                
+                
+                /* -- INIT SEARCH BY TAGS -------------------------- */
+
+                /* Used to check whether interaction is disabled, or not. */
+                var interActionDisabled = false;
+
+                function disableInterAction()
+                {
+                    /* Disable all form elements to prevent user interaction. */
+                    interActionDisabled = true;
+
+                    /* Disable input to prevent sending another request while the previous one is still processed. */
+                    $('#or-rec-browser-sbi-search-ing-tags').tagsinput('input').prop('disabled', true);
+
+                    $('#or-rec-browser-sbi-search-ing-tags-language').prop('disabled', true);
+                    $('#or-rec-browser-sbi-search-ing-tags-rel-select').prop('disabled', true);
+
+                    /* Buttons */
+                    $('#or-rec-browser-sbi-search-ing-btn-select-all').prop('disabled', true);
+                    $('#or-rec-browser-sbi-search-ing-btn-exclude').prop('disabled', true);
+                    $('#or-rec-browser-sbi-search-ing-btn-include').prop('disabled', true);
+                }
+
+                function enableInterAction()
+                {
+                    /* Enable interaction again. */
+                    $('#or-rec-browser-sbi-search-ing-tags').tagsinput('input').prop('disabled', false);
+
+                    $('#or-rec-browser-sbi-search-ing-tags-language').prop('disabled', false);
+                    $('#or-rec-browser-sbi-search-ing-tags-rel-select').prop('disabled', false);
+
+                    /* Buttons */
+                    $('#or-rec-browser-sbi-search-ing-btn-select-all').prop('disabled', false);
+                    $('#or-rec-browser-sbi-search-ing-btn-exclude').prop('disabled', false);
+                    $('#or-rec-browser-sbi-search-ing-btn-include').prop('disabled', false);
+
+                    interActionDisabled = false;
+                }
+                
+                /* Button clicks. */
+                var selectedAll = false;
+
+                $('#or-rec-browser-sbi-search-ing-btn-select-all').click
+                (
+                    function()
+                    {
+                        if(!interActionDisabled)
+                        {
+                            if(!selectedAll)
+                            {
+                                $(this).text("Deselect all");
+                            }
+                            else
+                            {
+                                $(this).text("Select all");
+                            }
+
+                            selectedAll = !selectedAll;
+
+                            $('.or-rec-browser-sbi-search-ing-tags-result-ing').each
+                            (
+                                function()
+                                {
+                                    if(selectedAll && $(this).hasClass('label-info'))
+                                    {
+                                        toggleSearchSearchResult($(this));
+                                    }
+
+                                    if(!selectedAll && $(this).hasClass('label-warning'))
+                                    {
+                                        toggleSearchSearchResult($(this));
+                                    }
+                                }
+                            );
+                        }
+                    }
+                );
+                
+                $('#or-rec-browser-sbi-search-ing-btn-exclude').click
+                (
+                    function()
+                    {
+                        if(!interActionDisabled)
+                        {
+                            $('.or-rec-browser-sbi-search-ing-tags-result-ing').each
+                            (
+                                function()
+                                {
+                                    if($(this).hasClass('label-warning'))
+                                    {
+                                        toggleSearchSearchResult($(this));
+
+                                        var idStr = $(this).attr('id');
+
+                                        var item = {};
+
+                                        item.id    = $(this).attr('id').split("or-rec-browser-sbi-search-ing-tags-result-ing-")[1];
+                                        item.value = $(this).text();
+
+                                        addItem(item, $('#or-rec-browser-sbi-excluded-ing-input'), $('#or-rec-browser-sbi-included-ing-input'), $('#or-rec-browser-group-mode-search-option'));
+                                    }
+                                }
+                            );
+                        }
+                    }
+                );
+
+                $('#or-rec-browser-sbi-search-ing-btn-include').click
+                (
+                    function()
+                    {
+                        if(!interActionDisabled)
+                        {
+                            $('.or-rec-browser-sbi-search-ing-tags-result-ing').each
+                            (
+                                function()
+                                {
+                                    if($(this).hasClass('label-warning'))
+                                    {
+                                        toggleSearchSearchResult($(this));
+
+                                        var idStr = $(this).attr('id');
+
+                                        var item = {};
+
+                                        item.id    = $(this).attr('id').split("or-rec-browser-sbi-search-ing-tags-result-ing-")[1];
+                                        item.value = $(this).text();
+
+                                        addItem(item, $('#or-rec-browser-sbi-included-ing-input'), $('#or-rec-browser-sbi-excluded-ing-input'), $('#or-rec-browser-group-mode-search-option'));
+                                    }
+                                }
+                            );
+
+                            /* Since all selected search result will be deselected. */
+                            $('#or-rec-browser-sbi-search-ing-btn-select-all').text("Select all");
+                            selectedAll = false;
+                        }
+                    }
+                );
+
+                /* Selects / deselects a search result. */
+                function toggleSearchSearchResult(result)
+                {
+                    if(result.hasClass('label-info'))
+                    {
+                        result.removeClass('label-info');
+                        result.addClass('label-warning');
+                    }
+                    else
+                    {
+                        result.removeClass('label-warning');
+                        result.addClass('label-info');
+                    }
+                }
+
+                function refreshSearchResults()
+                {
+                    if(!interActionDisabled)
+                    {
+                        /* Save previously selected states. */
+                        var savedStates = {};
+
+                        $('.or-rec-browser-sbi-search-ing-tags-result-ing').each
+                        (
+                            function()
+                            {
+                                savedStates[$(this).attr('id')] = $(this).attr('class');
+                            }
+                        );
+
+                        /* Erase previous results. */
+                        $('.or-rec-browser-sbi-search-ing-tags-result-ing').remove();
+
+                        var items  = $('#or-rec-browser-sbi-search-ing-tags').tagsinput('items');
+
+                        if(items.length > 0)
+                        {
+                            disableInterAction();
+
+                            var queryString = "@controllers.publicly.routes.RecipeBrowser.ingredientsWithTags()";
+
+                            var tagIDs = items[0].id;
+
+                            var i = 0;
+
+                            for(i = 1; i < items.length; i++)
+                            {
+                                tagIDs += "," + items[i].id;
+                            }
+
+                            var isAND     = $('#or-rec-browser-sbi-search-ing-tags-rel-select').val() == 'and';
+                            var lanID     = $('#or-rec-browser-sbi-search-ing-tags-language').val();
+
+                            queryString += "?q=" + tagIDs + "&a=" + isAND + "&l=" + lanID;
+
+                            $.ajax
+                            (
+                                queryString,
+                                {
+                                    success: function(data, textStatus, jqXHR)
+                                    {
+                                        var i = 0;
+
+                                        for(i = 0; i < data.length; i++)
+                                        {
+                                            var resultIng = $('<span id = "or-rec-browser-sbi-search-ing-tags-result-ing-' + data[i].id + '" class = "label label-info or-tags-default or-rec-browser-sbi-search-ing-tags-result-ing">' + data[i].name + '</span>');
+
+                                            resultIng.click
+                                            (
+                                                function()
+                                                {
+                                                    toggleSearchSearchResult($(this));
+                                                }
+                                            );
+
+                                            $('#or-rec-browser-sbi-search-ing-results').append(resultIng);
+                                        }
+
+                                        /* Restore saved states. */
+                                        $('.or-rec-browser-sbi-search-ing-tags-result-ing').each
+                                        (
+                                            function()
+                                            {
+                                                if(savedStates[$(this).attr('id')] != undefined)
+                                                {
+                                                    if(savedStates[$(this).attr('id')].indexOf('warning') != -1)
+                                                    {
+                                                        $(this).removeClass('label-info');
+                                                        $(this).addClass('label-warning');
+                                                    }
+                                                }
+                                            }
+                                        );
+                                    },
+                                    complete: function(jqXHR, textStatus)
+                                    {
+                                        enableInterAction();
+
+                                        // TODO: Error handling. Show a popup, if there was a failure.
+                                    }
+                                }
+                            );
+                        }
+                    }
+                }
+                
+                var ingredientTagsBH = new Bloodhound
+                ({
+                    remote: 
+                    {
+                        url: "@controllers.publicly.routes.RecipeBrowser.ingredientTags("")?q=" + "%QUERY",
+                        wildcard: "%QUERY"
+                    },
+                    queryTokenizer: Bloodhound.tokenizers.whitespace,
+                    datumTokenizer: Bloodhound.tokenizers.whitespace
+                });
+                
+                ingredientsBH.initialize();
+                
+                
+                /* Tags input for search by tags. */
+                $('#or-rec-browser-sbi-search-ing-tags').tagsinput
+                (
+                    {
+                        itemValue: "id",
+                        itemText:  "text",
+                        typeaheadjs:
+                        {
+                            source: ingredientTagsBH.ttAdapter(),
+                            displayKey: "value",
+                            valueKey: "value"
+                        }
+                    }
+                );
+                
+                /* Tagsinput automatically listens to typeahead:selected. Turn it off and use our custom solution. */
+                $('#or-rec-browser-sbi-search-ing-tags').tagsinput('input').off("typeahead:selected");
+
+                /* Init typeahead. */
+                $('#or-rec-browser-sbi-search-ing-tags').tagsinput('input')
+                .on
+                (
+                    'typeahead:select',
+                    $.proxy
+                    (
+                        function (obj, data)
+                        {
+                            /* Didn't want to create a separate addition for a single field, so reused addItem. */
+                            addItem(data, $('#or-rec-browser-sbi-search-ing-tags'), $('#or-rec-browser-sbi-search-ing-tags'), $('#or-rec-browser-group-mode-search-option'));
+
+                            refreshSearchResults();
+
+                            this.tagsinput('input').typeahead('val', '');
+                        },
+                        $('#or-rec-browser-sbi-search-ing-tags')
+                    )
+                );
+
+                /* Register item removed event handler. */
+                $('#or-rec-browser-sbi-search-ing-tags').on('itemRemoved', refreshSearchResults);
+
+                /* Changing relation behavior. */
+                $('#or-rec-browser-sbi-search-ing-tags-rel-select').change(refreshSearchResults);
+
+                /* Changing search language. */
+                $('#or-rec-browser-sbi-search-ing-tags-language').change(refreshSearchResults);
             }
         );
     </script>
