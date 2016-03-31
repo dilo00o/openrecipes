@@ -113,6 +113,23 @@ public class RecipeBrowser extends Controller
     }
     
     /**
+     * Executes the search by recipe properties.
+     *
+     * @return The result page (found recipes).
+     * */
+    public Result exec_searchByRecipeProperties()
+    {
+        Logger.debug(RecipeBrowser.class.getName() + ".exec_searchByRecipeProperties():\n");
+
+        Result result = null;
+
+        /* TODO */
+        result = searchByRecipeProperties();
+
+        return result; 
+    }
+    
+    /**
      * Used for getting ingredients (via AJAX) for searching by name, and language.
      * 
      * @param query         The query string.

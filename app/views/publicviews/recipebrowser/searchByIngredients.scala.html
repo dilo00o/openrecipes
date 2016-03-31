@@ -30,15 +30,14 @@
     <link href = "@routes.Assets.versioned("stylesheets/typeahead-bootstrap/typeahead.js-bootstrap.css")" rel = "stylesheet">
     
     
-    
-    
     <!-- Typeahead JS -->
     <script src = "@routes.Assets.versioned("javascripts/typeahead/typeahead.bundle.min.js")"></script>
     
     <!-- Tagsinput JS -->
     <script src = "@routes.Assets.versioned("javascripts/tagsinput/bootstrap-tagsinput-full.js")"></script>
     
-    
+    <!-- Storage API JS -->
+    <script src = "@routes.Assets.versioned("javascripts/storageapi/jquery.storageapi.min.js")"></script>
 }{
     <h1>Recipe Browser</h1>
     
@@ -191,22 +190,24 @@
             	@utils_js()
             	
             	/* -- SEARCH BY INGREDIENTS INIT ---------------- */
-            	
-                var ingredientsBH = new Bloodhound
+                
+                
+                /* Included. */
+                
+                /* Bloodhound init. */
+                var incIngredientsBH = new Bloodhound
                 ({
                     remote: 
                     {
-                    	url: "@controllers.publicly.routes.RecipeBrowser.ingredients("")?q=" + "%QUERY" + "&l=" + $('#or-rec-browser-sbi-excluded-ing-language').val(),
-                    	wildcard: "%QUERY"
+                        url: "@controllers.publicly.routes.RecipeBrowser.ingredients("")?q=" + "%QUERY" + "&l=" + $('#or-rec-browser-sbi-included-ing-language').val(),
+                        wildcard: "%QUERY"
                     },
                     queryTokenizer: Bloodhound.tokenizers.whitespace,
                     datumTokenizer: Bloodhound.tokenizers.whitespace
                 });
-            	
-            	ingredientsBH.initialize();
                 
+                incIngredientsBH.initialize();
                 
-                /* Included. */
                 /* Tags input init. */
                 $('#or-rec-browser-sbi-included-ing-input').tagsinput
                 (
@@ -217,7 +218,7 @@
                         tagClass:  determineClass,
                         typeaheadjs:
                         {
-                            source: ingredientsBH.ttAdapter(),
+                            source: incIngredientsBH.ttAdapter(),
                             displayKey: "value",
                             valueKey: "value"
                         }
@@ -244,6 +245,21 @@
                 );
                 
                 /* Excluded. */
+                
+                /* Bloodhound init. */
+                var excIngredientsBH = new Bloodhound
+                ({
+                    remote: 
+                    {
+                        url: "@controllers.publicly.routes.RecipeBrowser.ingredients("")?q=" + "%QUERY" + "&l=" + $('#or-rec-browser-sbi-excluded-ing-language').val(),
+                        wildcard: "%QUERY"
+                    },
+                    queryTokenizer: Bloodhound.tokenizers.whitespace,
+                    datumTokenizer: Bloodhound.tokenizers.whitespace
+                });
+                
+                excIngredientsBH.initialize();
+                
                 /* Tags input init. */
                 $('#or-rec-browser-sbi-excluded-ing-input').tagsinput
                 (
@@ -252,7 +268,7 @@
                         itemText:  "text",
                         typeaheadjs:
                         {
-                            source: ingredientsBH.ttAdapter(),
+                            source: excIngredientsBH.ttAdapter(),
                             displayKey: "value",
                             valueKey: "value"
                         }
@@ -563,7 +579,7 @@
                     datumTokenizer: Bloodhound.tokenizers.whitespace
                 });
                 
-                ingredientsBH.initialize();
+                ingredientTagsBH.initialize();
                 
                 
                 /* Tags input for search by tags. */
@@ -612,6 +628,81 @@
 
                 /* Changing search language. */
                 $('#or-rec-browser-sbi-search-ing-tags-language').change(refreshSearchResults);
+                
+                
+                /* -- FORM SUBMISSION --------- */
+
+                $('#or-rec-browser-sbi-search').click
+                (
+                    function()
+                    {
+                        var items;
+                        var i;
+                        var j;
+
+                        /* Collect included ingredients */
+                        var included = "";
+
+                        items = $('#or-rec-browser-sbi-included-ing-input').tagsinput('items');
+
+                        if(items != undefined && items.length > 0)
+                        {
+                            for(i = 0; i < items.length - 1; i++)
+                            {
+                                for(j = 0; j < validGroups.length; j++)
+                                {
+                                    if(items[i].groups[validGroups[j]])
+                                    {
+                                        included += validGroups[j] + ":";
+                                    }
+                                }
+                                
+                                included += items[i].id + ",";
+                            }
+                            
+                            for(j = 0; j < validGroups.length; j++)
+                            {
+                                if(items[i].groups[validGroups[j]])
+                                {
+                                    included += validGroups[j] + ":";
+                                }
+                            }
+
+                            included += items[i].id;
+                        }
+
+                        /* Collect excluded ingredients */
+                        var excluded = "";
+
+                        items = $('#or-rec-browser-sbi-excluded-ing-input').tagsinput('items');
+
+                        if(items != undefined && items.length > 0)
+                        {
+                            for(i = 0; i < items.length - 1; i++)
+                            {
+                                excluded += items[i].id + ",";
+                            }
+
+                            excluded += items[i].id;
+                        }
+
+                        /* Set form values. */
+                        $("#or-rec-browser-sbi-form-inc-ing").val(included);
+                        $("#or-rec-browser-sbi-form-exc-ing").val(excluded);
+
+                        /* Submit form. */
+                        $('#or-rec-browser-sbi-form').submit();
+                    }
+                );
+                
+                /* Parameter keys. */
+                @searchByIngredients_paramsKeys()
+
+                /* Loading cached parameters, if needed. */
+                @searchByIngredients_loadCachedParams()
+
+                /* Registering cached params updaters. */
+                @searchByIngredients_updateCachedParams()
             }
         );
     </script>

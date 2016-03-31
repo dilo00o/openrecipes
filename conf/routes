@@ -26,6 +26,9 @@ GET     /browse/recipes/search/exec/ingredients         controllers.publicly.Rec
 # Search based on recipe properties.
 GET     /browse/recipes/search/recipeprop               controllers.publicly.RecipeBrowser.searchByRecipeProperties()
 
+# Execute search based on recipe properties.
+GET     /browse/recipes/search/exec/recipeprop          controllers.publicly.RecipeBrowser.exec_searchByRecipeProperties()
+
 
 # Ingredients (AJAX)
 GET     /browse/recipes/getingredients                  controllers.publicly.RecipeBrowser.ingredients(q ?= "", l: Long ?= 0)

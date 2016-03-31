@@ -18,11 +18,69 @@
  *
  *@
 
-@import publicviews.main
+@import publicviews._
+@import helper._
 
 @main("Recipe Browser")("Recipe Browser"){
+    <!-- Tagsinput CSS -->
+    <link href = "@routes.Assets.versioned("stylesheets/tagsinput/bootstrap-tagsinput.css")" rel = "stylesheet">
+    
+    <!-- Typeahead bootstrap CSS -->
+    <link href = "@routes.Assets.versioned("stylesheets/typeahead-bootstrap/typeahead.js-bootstrap.css")" rel = "stylesheet">
+    
+    <!-- Nouislider CSS -->
+    <link href = "@routes.Assets.versioned("stylesheets/nouislider/nouislider.min.css")" rel = "stylesheet">
+    
+    
+    <!-- Typeahead JS -->
+    <script src = "@routes.Assets.versioned("javascripts/typeahead/typeahead.bundle.min.js")"></script>
+    
+    <!-- Tagsinput JS -->
+    <script src = "@routes.Assets.versioned("javascripts/tagsinput/bootstrap-tagsinput-full.js")"></script>
+    
+    <!-- Storage API JS -->
+    <script src = "@routes.Assets.versioned("javascripts/storageapi/jquery.storageapi.min.js")"></script>
+    
+    <!-- Nouislider JS -->
+    <script src = "@routes.Assets.versioned("javascripts/nouislider/nouislider.min.js")"></script>
 }{
     <h1>Recipe Browser</h1>
     
     @menutab("sbr")
+    <div class = "or-page-content">
+    
+        @form(controllers.publicly.routes.RecipeBrowser.exec_searchByRecipeProperties(), 'role -> "form", 'id -> "or-rec-browser-sbr-form") {
+            
+            <h3>Search by Recipe Properties</h3>
+            
+            <div class = "row">
+                <div class = "col-xs-12 form-group">
+                    <label>Recipe Name</label>
+                    <input type = "text" class = "form-control"  id = "or-rec-browser-sbr-rec-name-input">
+                </div>
+            </div>
+            
+            <div class = "row">
+                <div class = "col-xs-12 form-group">
+                    <label>Number of ingredients</label>
+                    <div id = "or-rec-browser-sbr-num-of-ings-range"></div>
+
+                    <div class = "row">
+                        <div class = "form-group">
+                            <div class = "pull-left col-xs-2">
+                                <label>Min</label>
+                                <input type = "text" class = "form-control input-sm"  id = "or-rec-browser-sbr-num-of-ings-range-min">
+                            </div>
+
+                            <div class = "pull-right col-xs-2">
+                                <label>Max</label>
+                                <input type = "text" class = "form-control input-sm"  id = "or-rec-browser-sbr-num-of-ings-range-max">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    
+    </div>
 }

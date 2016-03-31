@@ -1,0 +1,239 @@
+@*
+ *
+ *  Copyright 2016 Oliver Dozsa
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ *@
+
+@()
+
+if(typeof(Storage) !== "undefined")
+{
+    var storage = $.localStorage;
+
+    function saveIncIngsToStorage()
+    {
+        var items = $("#or-rec-browser-sbi-included-ing-input").tagsinput('items');
+
+        storage.set(SBI_INI_ITEMS_KEY, copyItemsForStoring(items));
+    }
+
+    function saveExcIngsToStorage()
+    {
+        var items = $("#or-rec-browser-sbi-excluded-ing-input").tagsinput('items');
+
+        storage.set(SBI_EXI_ITEMS_KEY, copyItemsForStoring(items));
+    }
+
+    function saveSearchTagsToStorage()
+    {
+        var items = $('#or-rec-browser-sbi-search-ing-tags').tagsinput('items');
+
+        storage.set(SBI_SIB_ITEMS_KEY, copyItemsForStoring(items));
+    }
+
+
+
+    /* Registering listeners for item additions / removal / change. */
+
+    /* -- Included ingredients ----------- */
+
+    $('#or-rec-browser-sbi-included-ing-language').on
+    (
+        'change.openrecipes.updatecachedparams.sbi',
+        function()
+        {
+            storage.set(SBI_INI_SEARCH_LAN_KEY, $('#or-rec-browser-sbi-included-ing-language').val());
+        }
+    );
+
+    $('input:radio[name="srm"]').on
+    (
+        'change.openrecipes.updatecachedparams.sbi',
+        function()
+        {
+            if($(this).is(':checked'))
+            {
+                storage.set(SBI_INI_SEARCH_MODE_KEY, $(this).val());
+            }
+        }
+    );
+
+    $("#or-rec-browser-sbi-included-ing-input").on
+    (
+        'itemAdded.openrecipes.updatecachedparams.sbi',
+        function(event)
+        {
+            var item = event.item;
+
+            saveIncIngsToStorage();
+        }
+    );
+
+    $("#or-rec-browser-sbi-included-ing-input").on
+    (
+        'itemRemoved.openrecipes.updatecachedparams.sbi',
+        function(event)
+        {
+            var item = event.item;
+
+            saveIncIngsToStorage();
+        }
+    );
+
+    $("#or-rec-browser-sbi-included-ing-input").on
+    (
+        'itemChanged.openrecipes.updatecachedparams.sbi',
+        function(event)
+        {
+            var item = event.item;
+
+            saveIncIngsToStorage();
+        }
+    );
+
+    $("#or-rec-browser-sbi-included-ing-input").on
+    (
+        'allItemsRemoved.openrecipes.updatecachedparams.sbi',
+        function(event)
+        {
+            saveIncIngsToStorage();
+        }
+    );
+
+
+
+    /* -- Excluded ingredients ----------- */
+
+    $('#or-rec-browser-sbi-excluded-ing-language').on
+    (
+        'change.openrecipes.updatecachedparams.sbi',
+        function()
+        {
+            storage.set(SBI_EXI_SEARCH_LAN_KEY, $('#or-rec-browser-sbi-excluded-ing-language').val());
+        }
+    );
+
+    $("#or-rec-browser-sbi-excluded-ing-input").on
+    (
+        'itemAdded.openrecipes.updatecachedparams.sbi',
+        function(event)
+        {
+            var item = event.item;
+
+            saveExcIngsToStorage();
+        }
+    );
+
+    $("#or-rec-browser-sbi-excluded-ing-input").on
+    (
+        'itemRemoved.openrecipes.updatecachedparams.sbi',
+        function(event)
+        {
+            var item = event.item;
+
+            saveExcIngsToStorage();
+        }
+    );
+
+    $("#or-rec-browser-sbi-excluded-ing-input").on
+    (
+        'itemChanged.openrecipes.updatecachedparams.sbi',
+        function(event)
+        {
+            var item = event.item;
+
+            saveExcIngsToStorage();
+        }
+    );
+
+    $("#or-rec-browser-sbi-excluded-ing-input").on
+    (
+        'allItemsRemoved.openrecipes.updatecachedparams.sbi',
+        function(event)
+        {
+            saveExcIngsToStorage();
+        }
+    );
+
+
+
+    /* -- Search for ings. by tags ------- */
+
+    $('#or-rec-browser-sbi-search-ing-tags-language').on
+    (
+        'change.openrecipes.updatecachedparams.sbi',
+        function()
+        {
+            storage.set(SBI_SIB_SEARCH_RESULT_LAN_KEY, $('#or-rec-browser-sbi-search-ing-tags-language').val());
+        }
+    );
+
+    $('#or-rec-browser-sbi-search-ing-tags-rel-select').on
+    (
+        'change.openrecipes.updatecachedparams.sbi',
+        function()
+        {
+            storage.set(SBI_SIB_RELATION_KEY, $('#or-rec-browser-sbi-search-ing-tags-rel-select').val());
+        }
+    );
+
+    $('#or-rec-browser-sbi-search-ing-tags').on
+    (
+        'itemAdded.openrecipes.updatecachedparams.sbi',
+        function(event)
+        {
+            var item = event.item;
+
+            saveSearchTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbi-search-ing-tags').on
+    (
+        'itemRemoved.openrecipes.updatecachedparams.sbi',
+        function(event)
+        {
+            var item = event.item;
+
+            saveSearchTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbi-search-ing-tags').on
+    (
+        'itemChanged.openrecipes.updatecachedparams.sbi',
+        function(event)
+        {
+            var item = event.item;
+
+            saveSearchTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbi-search-ing-tags').on
+    (
+        'allItemsRemoved.openrecipes.updatecachedparams.sbi',
+        function()
+        {
+            saveSearchTagsToStorage();
+        }
+    );
+}
+else
+{
+    /* No web storage support. */
+}
