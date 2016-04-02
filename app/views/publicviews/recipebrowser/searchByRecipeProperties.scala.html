@@ -80,7 +80,185 @@
                     </div>
                 </div>
             </div>
+            
+            
+            <h4>Filter search results by recipe tags</h4>
+            
+            <div class = "row">
+                <div class = "col-xs-12 form-group">
+                    <label>Included tags</label>
+                    <input type = "text" class = "form-control"  id = "or-rec-browser-sbr-included-rec-tags">
+                </div>
+            </div>
+            
+            <div class = "row">
+                <div class = "col-xs-12 form-group pull-left">
+
+                    <label class = "radio-inline">
+                        <input type = "radio" name = "or-rec-browser-sbr-included-rec-tags-option" id = "or-rec-browser-sbr-included-rec-tags-option-default" value = "2">
+                        At least containing these tags.
+                    </label>
+
+                    <label class = "radio-inline">
+                        <input type = "radio" name = "or-rec-browser-sbr-included-rec-tags-option" value = "3">
+                        Contains any of these.
+                    </label>
+
+                    <label class = "radio-inline">
+                        <input type = "radio" name = "or-rec-browser-sbr-included-rec-tags-option" id = "or-rec-browser-sbr-included-rec-tags-option-group-mode" value = "4">
+                        Group mode.
+                    </label>
+                </div>
+            </div>
+            
+            <div class = "or-vertical-space">
+            </div>
+
+            <div class = "row">
+                <div class = "col-xs-12 form-group">
+                    <label>Excluded tags</label>
+                    <input type = "text" class = "form-control"  id = "or-rec-browser-sbr-excluded-rec-tags">
+                </div>
+            </div>
+            
+            
+            <h4>Filter search results by ingredient tags</h4>
+            
+            <div class = "row">
+                <div class = "col-xs-12 form-group">
+                    <label>Included tags</label>
+                    <input type = "text" class = "form-control"  id = "or-rec-browser-sbr-included-ing-tags">
+                </div>
+            </div>
+
+            <div class = "row">
+                <div class = "col-xs-12 form-group pull-left">
+
+                    <label class = "radio-inline">
+                        <input type = "radio" name = "or-rec-browser-sbr-included-ing-tags-option" id = "or-rec-browser-sbr-included-ing-tags-option-default" value = "2">
+                        At least containing these tags.
+                    </label>
+
+                    <label class = "radio-inline">
+                        <input type = "radio" name = "or-rec-browser-sbr-included-ing-tags-option" value = "3">
+                        Contains any of these.
+                    </label>
+
+                    <label class = "radio-inline">
+                        <input type = "radio" name = "or-rec-browser-sbr-included-ing-tags-option" id = "or-rec-browser-sbr-included-ing-tags-option-group-mode" value = "4">
+                        Group mode.
+                    </label>
+                </div>
+            </div>
+
+            <div class = "or-vertical-space">
+            </div>
+
+            <div class = "row">
+                <div class = "col-xs-12 form-group">
+                    <label>Excluded tags</label>
+                    <input type = "text" class = "form-control"  id = "or-rec-browser-sbr-excluded-ing-tags">
+                </div>
+            </div>
+            
+            <div class = "row">
+                <div class = "col-xs-2 form-group pull-right">
+                    <label style = "visibility: hidden;">Search</label>
+                    <button type = "button" class = "form-control btn btn-primary" id = "or-rec-browser-sbr-search">Search recipes</button>
+                </div>
+            </div>
+
+            <input id = "or-rec-browser-sbr-form-nam" type = "hidden" name = "nam" />
+            <input id = "or-rec-browser-sbr-form-lan" type = "hidden" name = "srl" />
+            <input id = "or-rec-browser-sbr-form-mnk" type = "hidden" name = "mnk" />
+            <input id = "or-rec-browser-sbr-form-mxk" type = "hidden" name = "mxk" />
+            <input id = "or-rec-browser-sbr-form-inr" type = "hidden" name = "inr" />
+            <input id = "or-rec-browser-sbr-form-exr" type = "hidden" name = "exr" />
+            <input id = "or-rec-browser-sbr-form-ini" type = "hidden" name = "ini" />
+            <input id = "or-rec-browser-sbr-form-exi" type = "hidden" name = "exi" />
+            <input id = "or-rec-browser-sbr-form-irm" type = "hidden" name = "irm" />
+            <input id = "or-rec-browser-sbr-form-iim" type = "hidden" name = "iim" />
+            <input id = "or-rec-browser-sbr-form-mni" type = "hidden" name = "mni" />
+            <input id = "or-rec-browser-sbr-form-mxn" type = "hidden" name = "mxn" />
         }
+        
+        <div class = "dropdown clearfix or-context-menu" id = 'or-rec-browser-tags-context-menu'>
+            <ul class = "dropdown-menu" role = "menu" aria-labelledby = "or-context-menu" style = "display:block;position:static;margin-bottom:5px;">
+                <li><a id = "or-rec-browser-tags-context-menu-group-A" tabindex="-1" href="#"> <span id = "or-rec-browser-tags-context-menu-group-A-tick" class = "glyphicon glyphicon-ok"></span> Group A<span class = 'or-context-menu-value'>A</span></a></li>
+                <li><a id = "or-rec-browser-tags-context-menu-group-B" tabindex="-1" href="#"> <span id = "or-rec-browser-tags-context-menu-group-B-tick" class = "glyphicon glyphicon-ok"></span> Group B<span class = 'or-context-menu-value'>B</span></a></li>
+                <li><a id = "or-rec-browser-tags-context-menu-group-C" tabindex="-1" href="#"> <span id = "or-rec-browser-tags-context-menu-group-C-tick" class = "glyphicon glyphicon-ok"></span> Group C<span class = 'or-context-menu-value'>C</span></a></li>
+                <li><a id = "or-rec-browser-tags-context-menu-group-D" tabindex="-1" href="#"> <span id = "or-rec-browser-tags-context-menu-group-D-tick" class = "glyphicon glyphicon-ok"></span> Group D<span class = 'or-context-menu-value'>D</span></a></li>
+                <li><a id = "or-rec-browser-tags-context-menu-group-E" tabindex="-1" href="#"> <span id = "or-rec-browser-tags-context-menu-group-E-tick" class = "glyphicon glyphicon-ok"></span> Group E<span class = 'or-context-menu-value'>E</span></a></li>
+                <li><a id = "or-rec-browser-tags-context-menu-group-F" tabindex="-1" href="#"> <span id = "or-rec-browser-tags-context-menu-group-F-tick" class = "glyphicon glyphicon-ok"></span> Group F<span class = 'or-context-menu-value'>F</span></a></li>
+            </ul>
+        </div>
     
     </div>
+    
+    <script>
+        $(document).ready
+        (       
+            function()
+            {
+            	@utils_js()
+                
+                /* -- SEARCH BY RECIPE PROPERTIES INIT ---------- */
+                
+                /* -- Number of ingredients --------------------- */
+
+                var maxNumOfIngs = @Recipe.MAX_NUM_OF_INGREDIENTS;
+
+                noUiSlider.create
+                (
+            		document.getElementById("or-rec-browser-sbr-num-of-ings-range"),
+                    {
+                        range: {"min": 0, "max": (maxNumOfIngs + 1)},
+                        start: [0, maxNumOfIngs / 2],
+                        connect: true,
+                        step: 1
+                    }
+                );
+                
+                var numOfIngsSlider = document.getElementById("or-rec-browser-sbr-num-of-ings-range");
+                var minNumIngInput  = document.getElementById('or-rec-browser-sbr-num-of-ings-range-min');
+                var maxNumIngInput  = document.getElementById('or-rec-browser-sbr-num-of-ings-range-max');
+
+                numOfIngsSlider.noUiSlider.on
+                (
+            		'update',
+            		function(values, handle)
+                    {
+                        var value = values[handle];
+    
+                        if(handle)
+                        {
+                        	maxNumIngInput.value = Math.round(value);
+                        }
+                        else
+                        {
+                        	minNumIngInput.value = Math.round(value);
+                        }
+                    }
+        		);
+
+                minNumIngInput.addEventListener
+                (
+                    'change', 
+                    function()
+                    {
+                    	numOfIngsSlider.noUiSlider.set([null, this.value]);
+                    }
+                );
+                
+                maxNumIngInput.addEventListener
+                (
+                    'change', 
+                    function()
+                    {
+                        numOfIngsSlider.noUiSlider.set([null, this.value]);
+                    }
+                );
+            }
+        );
+    </script>
 }
