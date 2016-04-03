@@ -39,6 +39,9 @@ GET     /browse/recipes/getingredienttags               controllers.publicly.Rec
 # Ingredients With Tags (AJAX)
 GET     /browse/recipes/getingredientswithtags          controllers.publicly.RecipeBrowser.ingredientsWithTags(q ?= "", a: Boolean ?= false, l: Long ?= 0)
 
+# Recipe Tags (AJAX)
+GET     /browse/recipes/getrecipetags                   controllers.publicly.RecipeBrowser.recipeTags(q ?= "")
+
 
 ###############################################################################
 # PRIVATE PART

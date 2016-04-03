@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Ingredient;
 import models.IngredientName;
 import models.IngredientTag;
+import models.RecipeTag;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -328,6 +329,47 @@ public class RecipeBrowser extends Controller
                         );
                     }
                 }
+            }
+        }
+        
+        result = ok(jsonResults);
+        
+        return result;
+    }
+    
+    /**
+     * Gets recipe tags based on the query string (used in AJAX queries).
+     * 
+     * @param query             The query string.
+     * 
+     * @return The available recipe tags as a json object, according to typeahead format.
+     * */
+    public Result recipeTags(String query)
+    {
+        Logger.debug(RecipeBrowser.class.getName() + ".recipeTags():\n" +
+            "    query = " + query
+        );
+
+        Result result = null;
+        
+        ArrayNode jsonResults = Json.newObject().arrayNode();
+        
+        if(query.length() > 0)
+        {
+            List<RecipeTag> tags = RecipeTag.getTagsByNameLike(query);
+            
+            for(RecipeTag tag: tags)
+            {
+                ObjectNode queryJsonResult = Json.newObject();
+
+                /* We assume, that name is not null (db restriction) */
+                queryJsonResult.put("value", tag.name);
+                queryJsonResult.put("id", tag.id);
+                
+                ArrayNode tokens = queryJsonResult.putArray("tokens");
+                tokens.add(tag.name);
+                
+                jsonResults.add(queryJsonResult);
             }
         }
         

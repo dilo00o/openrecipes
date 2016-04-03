@@ -1,0 +1,153 @@
+@*
+ *
+ *  Copyright 2016 Oliver Dozsa
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ *@
+
+@()
+
+
+
+if(typeof(Storage) !== "undefined")
+{
+    var storage = $.localStorage;
+
+    /* -- Main parameters ---------------- */
+
+    if(storage.isSet(SBR_MAN_RECIPE_NAME_STR_KEY))
+    {
+        $("#or-rec-browser-sbr-rec-name-input").val(storage.get(SBR_MAN_RECIPE_NAME_STR_KEY));
+    }
+
+    if(storage.isSet(SBR_MAN_NUMOF_INGS_MIN_KEY))
+    {
+        $("#or-rec-browser-sbr-num-of-ings-range").val([storage.get(SBR_MAN_NUMOF_INGS_MIN_KEY), null]);
+    }
+
+    if(storage.isSet(SBR_MAN_NUMOF_INGS_MAX_KEY))
+    {
+        $("#or-rec-browser-sbr-num-of-ings-range").val([null, storage.get(SBR_MAN_NUMOF_INGS_MAX_KEY)]);
+    }
+
+
+
+    /* -- Filter by rec. tags ------------ */
+
+    if(storage.isSet(SBR_FRT_INCLUDED_TAG_SEARCH_MODE_KEY))
+    {
+        $('input:radio[name="or-rec-browser-sbr-included-rec-tags-option"][value=' + storage.get(SBR_FRT_INCLUDED_TAG_SEARCH_MODE_KEY) + ']').prop('checked', true);
+
+        /* Trigger change, since it's not triggered if value changes programmatically. */
+        $('input:radio[name="or-rec-browser-sbr-included-rec-tags-option"]').trigger('change');
+    }
+
+    if(storage.isSet(SBR_FRT_INCLUDED_TAGS_KEY))
+    {
+        var items = storage.get(SBR_FRT_INCLUDED_TAGS_KEY);
+
+        var i = 0;
+
+        for(i = 0; i < items.length; i++)
+        {
+            var data =
+            {
+                value:  items[i].text,
+                id:     items[i].id,
+                groups: items[i].groups
+            };
+
+            /* Add item. Group mode is handled implicitly. */
+            addItem(data, $('#or-rec-browser-sbr-included-rec-tags'), $('#or-rec-browser-sbr-excluded-rec-tags'), $('#or-rec-browser-sbr-included-rec-tags-option-group-mode'));
+        }
+    }
+
+    if(storage.isSet(SBR_FRT_EXCLUDED_TAGS_KEY))
+    {
+        var items = storage.get(SBR_FRT_EXCLUDED_TAGS_KEY);
+
+        var i = 0;
+
+        for(i = 0; i < items.length; i++)
+        {
+            var data =
+            {
+                value:  items[i].text,
+                id:     items[i].id
+            };
+
+            /* Add item. */
+            addItem(data, $('#or-rec-browser-sbr-excluded-rec-tags'), $('#or-rec-browser-sbr-included-rec-tags'), $('#or-rec-browser-sbr-included-rec-tags-option-group-mode'));
+        }
+    }
+
+
+
+    /* -- Filter by ing. tags ------------ */
+
+    if(storage.isSet(SBR_FIT_INCLUDED_TAG_SEARCH_MODE_KEY))
+    {
+        $('input:radio[name="or-rec-browser-sbr-included-ing-tags-option"][value=' + storage.get(SBR_FIT_INCLUDED_TAG_SEARCH_MODE_KEY) + ']').prop('checked', true);
+
+        /* Trigger change, since it's not triggered if value changes programmatically. */
+        $('input:radio[name="or-rec-browser-sbr-included-ing-tags-option"]').trigger('change');
+    }
+
+    if(storage.isSet(SBR_FIT_INCLUDED_TAGS_KEY))
+    {
+        var items = storage.get(SBR_FIT_INCLUDED_TAGS_KEY);
+
+        var i = 0;
+
+        for(i = 0; i < items.length; i++)
+        {
+            var data =
+            {
+                value:  items[i].text,
+                id:     items[i].id,
+                groups: items[i].groups
+            };
+
+            /* Add item. Group mode is handled implicitly. */
+            addItem(data, $('#or-rec-browser-sbr-included-ing-tags'), $('#or-rec-browser-sbr-excluded-ing-tags'), $('#or-rec-browser-sbr-included-ing-tags-option-group-mode'));
+        }
+    }
+
+    if(storage.isSet(SBR_FIT_EXCLUDED_TAGS_KEY))
+    {
+        var items = storage.get(SBR_FIT_EXCLUDED_TAGS_KEY);
+
+        var i = 0;
+
+        for(i = 0; i < items.length; i++)
+        {
+            var data =
+            {
+                value:  items[i].text,
+                id:     items[i].id
+            };
+
+            /* Add item. */
+            addItem(data, $('#or-rec-browser-sbr-excluded-ing-tags'), $('#or-rec-browser-sbr-included-ing-tags'), $('#or-rec-browser-sbr-included-ing-tags-option-group-mode'));
+        }
+    }
+
+}
+else
+{
+    // No web storage support.
+}
+

@@ -258,6 +258,417 @@
                         numOfIngsSlider.noUiSlider.set([null, this.value]);
                     }
                 );
+                
+                
+                /* -- Init filter by recipe tags ---------------- */
+
+                /* Included. */
+                
+                /* Bloodhound init. */
+                var incRecipeTagsBH = new Bloodhound
+                ({
+                    remote: 
+                    {
+                        url: "@controllers.publicly.routes.RecipeBrowser.recipeTags("")?q=%QUERY",
+                        wildcard: "%QUERY"
+                    },
+                    queryTokenizer: Bloodhound.tokenizers.whitespace,
+                    datumTokenizer: Bloodhound.tokenizers.whitespace
+                });
+                
+                incRecipeTagsBH.initialize();
+                
+                /* Tags input init. */
+                $('#or-rec-browser-sbr-included-rec-tags').tagsinput
+                (
+                    {
+                        itemValue: "id",
+                        itemText:  "text",
+                        tagId:     'or-rec-browser-sbr-included-rec-tag-',
+                        tagClass:  determineClass,
+                        typeaheadjs:
+                        {
+                            source: incRecipeTagsBH.ttAdapter(),
+                            displayKey: "value",
+                            valueKey: "value"
+                        }
+                    }
+                );
+                
+                /* Tagsinput automatically listens to typeahead:selected. Turn it off and use our custom solution. */
+                $('#or-rec-browser-sbr-included-rec-tags').tagsinput('input').off("typeahead:selected");
+                
+                $('#or-rec-browser-sbr-included-rec-tags').tagsinput('input')
+                .on
+                (
+                    'typeahead:select',
+                    $.proxy
+                    (
+                        function (obj, data)
+                        {
+                            addItem(data, $('#or-rec-browser-sbr-included-rec-tags'), $('#or-rec-browser-sbr-excluded-rec-tags'), $('#or-rec-browser-sbr-included-rec-tags-option-group-mode'));
+                            
+                            this.tagsinput('input').typeahead('val', '');
+                        },
+                        $('#or-rec-browser-sbr-included-rec-tags')
+                    )
+                );
+
+                /* Excluded. */
+                
+                /* Bloodhound init. */
+                var excRecipeTagsBH = new Bloodhound
+                ({
+                    remote: 
+                    {
+                        url: "@controllers.publicly.routes.RecipeBrowser.recipeTags("")?q=%QUERY",
+                        wildcard: "%QUERY"
+                    },
+                    queryTokenizer: Bloodhound.tokenizers.whitespace,
+                    datumTokenizer: Bloodhound.tokenizers.whitespace
+                });
+                
+                excRecipeTagsBH.initialize();
+                
+                /* Tags input init. */
+                $('#or-rec-browser-sbr-excluded-rec-tags').tagsinput
+                (
+                    {
+                        itemValue: "id",
+                        itemText:  "text",
+                        tagId:     'or-rec-browser-sbr-excluded-rec-tag-',
+                        typeaheadjs:
+                        {
+                            source: excRecipeTagsBH.ttAdapter(),
+                            displayKey: "value",
+                            valueKey: "value"
+                        }
+                    }
+                );
+                
+                /* Tagsinput automatically listens to typeahead:selected. Turn it off and use our custom solution. */
+                $('#or-rec-browser-sbr-excluded-rec-tags').tagsinput('input').off("typeahead:selected");
+                
+                $('#or-rec-browser-sbr-excluded-rec-tags').tagsinput('input')
+                .on
+                (
+                    'typeahead:select',
+                    $.proxy
+                    (
+                        function (obj, data)
+                        {
+                        	addItem(data, $('#or-rec-browser-sbr-excluded-rec-tags'), $('#or-rec-browser-sbr-included-rec-tags'), $('#or-rec-browser-sbr-included-rec-tags-option-group-mode'));
+                            
+                            this.tagsinput('input').typeahead('val', '');
+                        },
+                        $('#or-rec-browser-sbr-excluded-rec-tags')
+                    )
+                );
+
+                /* Make sure not group mode is selected as default. */
+                $('#or-rec-browser-sbr-included-rec-tags-option-default').prop("checked", true);
+                
+                
+                /* -- Group mode handling -------------------------- */
+
+                $('input:radio[name="or-rec-browser-sbr-included-rec-tags-option"]').change
+                (
+                    function()
+                    {
+                        if($(this).is(':checked') && $(this).val() == '4')
+                        {
+                            groupModeOn($('#or-rec-browser-sbr-included-rec-tags'));
+                        }
+                        else
+                        {
+                            groupModeOff($('#or-rec-browser-sbr-included-rec-tags'));
+                        }
+                    }
+                );
+
+                $(document).click
+                (
+                    function()
+                    {
+                        $('#or-rec-browser-tags-context-menu').hide();
+                    }
+                );
+                
+                
+                
+                /* -- Init filter by ingredient tags ------------ */
+
+                /* Included. */
+                
+                /* Bloodhound init. */
+                var incIngTagsBH = new Bloodhound
+                ({
+                    remote: 
+                    {
+                        url: "@controllers.publicly.routes.RecipeBrowser.ingredientTags("")?q=%QUERY",
+                        wildcard: "%QUERY"
+                    },
+                    queryTokenizer: Bloodhound.tokenizers.whitespace,
+                    datumTokenizer: Bloodhound.tokenizers.whitespace
+                });
+                
+                incIngTagsBH.initialize();
+                
+                /* Tags input init. */
+                $('#or-rec-browser-sbr-included-ing-tags').tagsinput
+                (
+                    {
+                        itemValue: "id",
+                        itemText:  "text",
+                        tagId:     'or-rec-browser-sbr-included-ing-tag-',
+                        tagClass:  determineClass,
+                        typeaheadjs:
+                        {
+                            source: incIngTagsBH.ttAdapter(),
+                            displayKey: "value",
+                            valueKey: "value"
+                        }
+                    }
+                );
+                
+                /* Tagsinput automatically listens to typeahead:selected. Turn it off and use our custom solution. */
+                $('#or-rec-browser-sbr-included-ing-tags').tagsinput('input').off("typeahead:selected");
+
+                /* Init typeahead. */
+                $('#or-rec-browser-sbr-included-ing-tags').tagsinput('input')
+                .on
+                (
+                    'typeahead:select',
+                    $.proxy
+                    (
+                        function (obj, data)
+                        {
+                            addItem(data, $('#or-rec-browser-sbr-included-ing-tags'), $('#or-rec-browser-sbr-excluded-ing-tags'), $('#or-rec-browser-sbr-included-ing-tags-option-group-mode'));
+
+                            this.tagsinput('input').typeahead('val', '');
+                        },
+                        $('#or-rec-browser-sbr-included-ing-tags')
+                    )
+                );
+
+                /* Excluded. */
+                
+                /* Bloodhound init. */
+                var excIngTagsBH = new Bloodhound
+                ({
+                    remote: 
+                    {
+                        url: "@controllers.publicly.routes.RecipeBrowser.ingredientTags("")?q=%QUERY",
+                        wildcard: "%QUERY"
+                    },
+                    queryTokenizer: Bloodhound.tokenizers.whitespace,
+                    datumTokenizer: Bloodhound.tokenizers.whitespace
+                });
+                
+                excIngTagsBH.initialize();
+                
+                /* Tags input init. */
+                $('#or-rec-browser-sbr-excluded-ing-tags').tagsinput
+                (
+                    {
+                        itemValue: "id",
+                        itemText:  "text",
+                        tagId:     'or-rec-browser-sbr-excluded-ing-tag-',
+                        typeaheadjs:
+                        {
+                            source: excIngTagsBH.ttAdapter(),
+                            displayKey: "value",
+                            valueKey: "value"
+                        }
+                    }
+                );
+                
+                /* Tagsinput automatically listens to typeahead:selected. Turn it off and use our custom solution. */
+                $('#or-rec-browser-sbr-excluded-ing-tags').tagsinput('input').off("typeahead:selected");
+
+                /* Init typeahead. */
+                $('#or-rec-browser-sbr-excluded-ing-tags').tagsinput('input')
+                .on
+                (
+                    'typeahead:select',
+                    $.proxy
+                    (
+                        function (obj, data)
+                        {
+                            addItem(data, $('#or-rec-browser-sbr-excluded-ing-tags'), $('#or-rec-browser-sbr-included-ing-tags'), $('#or-rec-browser-sbr-included-ing-tags-option-group-mode'));
+
+                            this.tagsinput('input').typeahead('val', '');
+                        },
+                        $('#or-rec-browser-sbr-excluded-ing-tags')
+                    )
+                );
+
+                /* Make sure not group mode is selected as default. */
+                $('#or-rec-browser-sbr-included-ing-tags-option-default').prop("checked", true);
+
+
+
+                /* -- Group mode handling -------------------------- */
+
+                $('input:radio[name="or-rec-browser-sbr-included-ing-tags-option"]').change
+                (
+                    function()
+                    {
+                        if($(this).is(':checked') && $(this).val() == '4')
+                        {
+                            groupModeOn($('#or-rec-browser-sbr-included-ing-tags'));
+                        }
+                        else
+                        {
+                            groupModeOff($('#or-rec-browser-sbr-included-ing-tags'));
+                        }
+                    }
+                );
+
+                $(document).click
+                (
+                    function()
+                    {
+                        $('#or-rec-browser-tags-context-menu').hide();
+                    }
+                );
+                
+                
+                /* -- FORM SUBMISSION --------------------------- */
+                
+                $("#or-rec-browser-sbr-search").click
+                (
+                    function()
+                    {
+                    	/* Collect data. */
+                        var searchName  = $("#or-rec-browser-sbr-rec-name-input").val();
+                        var noiValues   = $('#or-rec-browser-sbr-num-of-ings-range').val();
+                        var incRecTags  = "";
+                        var excRecTags  = "";
+                        var incIngTags  = "";
+                        var excIngTags  = "";
+                        
+                        var items;
+                        var i;
+                        var j;
+                        
+                        /* Included recipe tags. */
+                        items = $('#or-rec-browser-sbr-included-rec-tags').tagsinput('items');
+
+                        if(items != undefined && items.length > 0)
+                        {
+                            for(i = 0; i < items.length - 1; i++)
+                            {
+                                for(j = 0; j < validGroups.length; j++)
+                                {
+                                    if(items[i].groups[validGroups[j]])
+                                    {
+                                        incRecTags += validGroups[j] + ":";
+                                    }
+                                }
+                                
+                                incRecTags += items[i].id + ",";
+                            }
+                            
+                            for(j = 0; j < validGroups.length; j++)
+                            {
+                                if(items[i].groups[validGroups[j]])
+                                {
+                                    incRecTags += validGroups[j] + ":";
+                                }
+                            }
+
+                            incRecTags += items[i].id;
+                        }
+                        
+                        /* Excluded recipe tags. */
+                        items = $('#or-rec-browser-sbr-excluded-rec-tags').tagsinput('items');
+
+                        if(items != undefined && items.length > 0)
+                        {
+                            for(i = 0; i < items.length - 1; i++)
+                            {
+                                excRecTags += items[i].id + ",";
+                            }
+
+                            excRecTags += items[i].id;
+                        }
+                        
+                        
+                        
+                        /* Included ingredient tags. */
+                        items = $('#or-rec-browser-sbr-included-ing-tags').tagsinput('items');
+
+                        if(items != undefined && items.length > 0)
+                        {
+                            for(i = 0; i < items.length - 1; i++)
+                            {
+                                for(j = 0; j < validGroups.length; j++)
+                                {
+                                    if(items[i].groups[validGroups[j]])
+                                    {
+                                        incIngTags += validGroups[j] + ":";
+                                    }
+                                }
+                                
+                                incIngTags += items[i].id + ",";
+                            }
+                            
+                            for(j = 0; j < validGroups.length; j++)
+                            {
+                                if(items[i].groups[validGroups[j]])
+                                {
+                                    incIngTags += validGroups[j] + ":";
+                                }
+                            }
+
+                            incIngTags += items[i].id;
+                        }
+
+
+                        /* Excluded ingredient tags. */
+                        items = $('#or-rec-browser-sbr-excluded-ing-tags').tagsinput('items');
+
+                        if(items != undefined && items.length > 0)
+                        {
+                            for(i = 0; i < items.length - 1; i++)
+                            {
+                                excIngTags += items[i].id + ",";
+                            }
+
+                            excIngTags += items[i].id;
+                        }
+                        
+                        
+                        /* Set search params. */
+                        $("#or-rec-browser-sbr-form-nam").val(searchName);
+                        $("#or-rec-browser-sbr-form-mni").val(noiValues[0]);
+                        $("#or-rec-browser-sbr-form-mxn").val(noiValues[1]);
+
+                        $("#or-rec-browser-sbr-form-inr").val(incRecTags);
+                        $("#or-rec-browser-sbr-form-exr").val(excRecTags);
+                        $("#or-rec-browser-sbr-form-ini").val(incIngTags);
+                        $("#or-rec-browser-sbr-form-exi").val(excIngTags);
+
+                        var irmVal = $('input:radio[name="or-rec-browser-sbr-included-rec-tags-option"]:checked').val();
+                        var iimVal = $('input:radio[name="or-rec-browser-sbr-included-ing-tags-option"]:checked').val();
+
+                        $("#or-rec-browser-sbr-form-irm").val(irmVal);
+                        $("#or-rec-browser-sbr-form-iim").val(iimVal);
+
+                        /* Submit form. */
+                        $('#or-rec-browser-sbr-form').submit();
+                    }
+                );
+                
+                /* Parameter keys. */
+                @searchByRecipeProperties_paramsKeys()
+
+                /* Load cached params if necessary. */
+                @searchByRecipeProperties_loadCachedParams()
+
+                /* Registering cached params updaters. */
+                @searchByRecipeProperties_updateCachedParams()
             }
         );
     </script>

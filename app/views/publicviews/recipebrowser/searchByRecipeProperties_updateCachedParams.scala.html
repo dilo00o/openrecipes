@@ -1,0 +1,297 @@
+@*
+ *
+ *  Copyright 2016 Oliver Dozsa
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ *@
+
+@()
+
+if(typeof(Storage) !== "undefined")
+{
+    var storage = $.localStorage;
+
+    function saveIncRecTagsToStorage()
+    {
+        var items = $('#or-rec-browser-sbr-included-rec-tags').tagsinput('items');
+
+        storage.set(SBR_FRT_INCLUDED_TAGS_KEY, copyItemsForStoring(items));
+    }
+
+    function saveExcRecTagsToStorage()
+    {
+        var items = $('#or-rec-browser-sbr-excluded-rec-tags').tagsinput('items');
+
+        storage.set(SBR_FRT_EXCLUDED_TAGS_KEY, copyItemsForStoring(items));
+    }
+
+    function saveIncIngTagsToStorage()
+    {
+        var items = $('#or-rec-browser-sbr-included-ing-tags').tagsinput('items');
+
+        storage.set(SBR_FIT_INCLUDED_TAGS_KEY, copyItemsForStoring(items));
+    }
+
+    function saveExcIngTagsToStorage()
+    {
+        var items = $('#or-rec-browser-sbr-excluded-ing-tags').tagsinput('items');
+
+        storage.set(SBR_FIT_EXCLUDED_TAGS_KEY, copyItemsForStoring(items));
+    }
+
+    /* -- Main parameters ---------------- */
+
+    $("#or-rec-browser-sbr-rec-name-input").on
+    (
+        'change.openrecipes.updatecachedparams.sbr',
+        function()
+        {
+            storage.set(SBR_MAN_RECIPE_NAME_STR_KEY, $("#or-rec-browser-sbr-rec-name-input").val());
+        }
+    );    
+
+    $("#or-rec-browser-sbr-num-of-ings-range").on
+    (
+        'change.openrecipes.updatecachedparams.sbr',
+        function()
+        {
+            storage.set(SBR_MAN_NUMOF_INGS_MIN_KEY, $("#or-rec-browser-sbr-num-of-ings-range-min").val());
+            storage.set(SBR_MAN_NUMOF_INGS_MAX_KEY, $("#or-rec-browser-sbr-num-of-ings-range-max").val());
+        }
+    );
+
+    $("#or-rec-browser-sbr-num-of-ings-range-min").on
+    (
+        'change.openrecipes.updatecachedparams.sbr',
+        function()
+        {
+            storage.set(SBR_MAN_NUMOF_INGS_MIN_KEY, $("#or-rec-browser-sbr-num-of-ings-range-min").val());
+        }
+    );
+
+    $("#or-rec-browser-sbr-num-of-ings-range-max").on
+    (
+        'change.openrecipes.updatecachedparams.sbr',
+        function()
+        {
+            storage.set(SBR_MAN_NUMOF_INGS_MAX_KEY, $("#or-rec-browser-sbr-num-of-ings-range-max").val());
+        }
+    );
+
+
+
+    /* -- Filter by rec. tags ------------ */
+
+    $('input:radio[name="or-rec-browser-sbr-included-rec-tags-option"]').on
+    (
+        'change.openrecipes.updatecachedparams.sbr',
+        function()
+        {
+            if($(this).is(':checked'))
+            {
+                storage.set(SBR_FRT_INCLUDED_TAG_SEARCH_MODE_KEY, $(this).val());
+            }
+        }
+    );
+
+    $('#or-rec-browser-sbr-included-rec-tags').on
+    (
+        'itemAdded.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            var item = event.item;
+
+            saveIncRecTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbr-included-rec-tags').on
+    (
+        'itemRemoved.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            var item = event.item;
+
+            saveIncRecTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbr-included-rec-tags').on
+    (
+        'itemChanged.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            var item = event.item;
+
+            saveIncRecTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbr-included-rec-tags').on
+    (
+        'allItemsRemoved.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            saveIncRecTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbr-excluded-rec-tags').on
+    (
+        'itemAdded.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            var item = event.item;
+
+            saveExcRecTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbr-excluded-rec-tags').on
+    (
+        'itemRemoved.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            var item = event.item;
+
+            saveExcRecTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbr-excluded-rec-tags').on
+    (
+        'itemChanged.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            var item = event.item;
+
+            saveExcRecTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbr-excluded-rec-tags').on
+    (
+        'allItemsRemoved.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            saveExcRecTagsToStorage();
+        }
+    );
+
+
+
+    /* -- Filter by ing. tags ------------ */
+
+    $('input:radio[name="or-rec-browser-sbr-included-ing-tags-option"]').on
+    (
+        'change.openrecipes.updatecachedparams.sbr',
+        function()
+        {
+            if($(this).is(':checked'))
+            {
+                storage.set(SBR_FIT_INCLUDED_TAG_SEARCH_MODE_KEY, $(this).val());
+            }
+        }
+    );
+
+    $('#or-rec-browser-sbr-included-ing-tags').on
+    (
+        'itemAdded.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            var item = event.item;
+
+            saveIncIngTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbr-included-ing-tags').on
+    (
+        'itemRemoved.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            var item = event.item;
+
+            saveIncIngTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbr-included-ing-tags').on
+    (
+        'itemChanged.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            var item = event.item;
+
+            saveIncIngTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbr-included-ing-tags').on
+    (
+        'allItemsRemoved.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            saveIncIngTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbr-excluded-ing-tags').on
+    (
+        'itemAdded.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            var item = event.item;
+
+            saveExcIngTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbr-excluded-ing-tags').on
+    (
+        'itemRemoved.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            var item = event.item;
+
+            saveExcIngTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbr-excluded-ing-tags').on
+    (
+        'itemChanged.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            var item = event.item;
+
+            saveExcIngTagsToStorage();
+        }
+    );
+
+    $('#or-rec-browser-sbr-excluded-ing-tags').on
+    (
+        'allItemsRemoved.openrecipes.updatecachedparams.sbr',
+        function(event)
+        {
+            saveExcIngTagsToStorage();
+        }
+    );
+}
+else
+{
+    /* No web storage support. */
+}
