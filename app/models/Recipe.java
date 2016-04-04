@@ -24,6 +24,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 import com.avaje.ebean.Model;
@@ -81,6 +82,12 @@ public class Recipe extends Model
      * */
     @OneToMany(mappedBy = "recipe")
     public List<RecipeIngredient> ingredients;
+    
+    /**
+     * The list of tags.
+     * */
+    @ManyToMany(mappedBy = "recipes")
+    public List<RecipeTag> tags;
     
     /**
      * Finder.

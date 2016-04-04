@@ -1,0 +1,46 @@
+@*
+ * 
+ *  Copyright 2013 Oliver Dozsa
+ *      
+ *  This program is free software: you can redistribute it and/or modify 
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ *
+ *@
+
+@(hasPrev: Boolean, hasNext: Boolean, displayingText: String)
+<div id = "or-pagination">
+    <ul class = "pagination">
+        @if(hasPrev) {
+            <li class = "prev">
+                <a id = "or-rec-ct-pag-prev">&larr; Previous</a>
+            </li>
+        } else {
+            <li class = "prev disabled">
+                <a href = "#">&larr; Previous</a>
+            </li>
+        }
+        <li class="current">
+            <a href = "#">@displayingText</a>
+        </li>
+        @if(hasNext) {
+            <li class = "next">
+                <a href = "#" id = "or-rec-ct-pag-next">Next &rarr;</a>
+            </li>
+        } else {
+            <li class = "next disabled">
+                <a href = "#">Next &rarr;</a>
+            </li>
+        }
+    </ul>
+</div>
