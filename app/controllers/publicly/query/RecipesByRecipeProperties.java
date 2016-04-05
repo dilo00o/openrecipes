@@ -59,9 +59,6 @@ public class RecipesByRecipeProperties
      * Search by recipe properties.
      *
      * @param name                                The name fragment.
-     * @param languageId                          The id of the language used for the name fragment.
-     * @param minKcalPerServing                   Minimum kcal / servings.
-     * @param maxKcalPerServing                   Maximum kcal / servings.
      * @param includedRecipeTags                  The included recipe tags. The key is the group id.
      * @param excludedRecipeTags                  The excluded recipe tags.
      * @param includedIngredientTags              The included ingredient tags. The key is the group id.
@@ -102,8 +99,7 @@ public class RecipesByRecipeProperties
         Integer maxni = determineMax(minni, maxNumOfIngredients, Recipe.MAX_NUM_OF_INGREDIENTS);
 
         String rawSqlStr =
-            "SELECT recipe.id FROM recipe " +
-            "JOIN recipe_name ON recipe.id = recipe_name.recipe_id ";
+            "SELECT recipe.id FROM recipe ";
 
         RawSql rawSql = RawSqlBuilder.parse(rawSqlStr)
             .columnMapping("recipe.id", "id")
@@ -114,7 +110,7 @@ public class RecipesByRecipeProperties
             .setRawSql(rawSql)
             .where()
                 .conjunction()
-                    .add(Expr.ilike("recipe_name.name", "%" + name + "%"))
+                    .add(Expr.ilike("name", "%" + name + "%"))
                     .add(Expr.ge("num_of_ings", minni));
 
         if(maxni <= Recipe.MAX_NUM_OF_INGREDIENTS)

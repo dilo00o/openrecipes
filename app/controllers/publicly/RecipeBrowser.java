@@ -19,16 +19,25 @@
 package controllers.publicly;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
+import com.avaje.ebean.Query;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.inject.Inject;
 
+import controllers.publicly.query.RecipesByRecipeProperties;
 import models.Ingredient;
 import models.IngredientName;
 import models.IngredientTag;
+import models.Recipe;
 import models.RecipeTag;
 import play.Logger;
+import play.data.DynamicForm;
+import play.data.FormFactory;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -47,10 +56,17 @@ public class RecipeBrowser extends Controller
     /* --------------------------------------------------------------------- */
 
     /* -- PUBLIC ATTRIBUTES ------------------------------------------------ */
+    
+    /**
+     * The number of recipes shown in one result page.
+     * */
+    public static final int RESULT_PAGE_SIZE = 20;
 
 
 
     /* -- PROTECTED ATTRIBUTES --------------------------------------------- */
+    
+    @Inject FormFactory formFactory;
 
 
 
@@ -120,14 +136,73 @@ public class RecipeBrowser extends Controller
      * */
     public Result exec_searchByRecipeProperties()
     {
-        Logger.debug(RecipeBrowser.class.getName() + ".exec_searchByRecipeProperties():\n");
+        Logger.debug(RecipeBrowser.class.getName() + ".exec_searchByRecipeProperties()");
 
-        Result result = null;
+        /* Retrieving data from form. */
+        DynamicForm dynamicForm = formFactory.form().bindFromRequest();
 
-        /* TODO */
-        result = searchByRecipeProperties();
+        String name                              = dynamicForm.get("nam");
+        Integer minNumOfIngredients              = parseInteger(dynamicForm.get("mni"));
+        Integer maxNumOfIngredients              = parseInteger(dynamicForm.get("mxn"));
+        String sortBy                            = dynamicForm.get("srb");
+        String sortOrder                         = dynamicForm.get("sro");
+        Integer page                             = parseInteger(dynamicForm.get("pag"));
 
-        return result; 
+        Map<Long, List<Long>> includedRecipeTags = parseIncludedIds(dynamicForm.get("inr"));
+        List<Long> excludedRecipeTags            = parseExcludedIds(dynamicForm.get("exr"));
+        SearchMode includedRecipeTagsSearchMode  = SearchMode.fromInt(parseInteger(dynamicForm.get("irm")));
+
+        Map<Long, List<Long>> includedIngTags    = parseIncludedIds(dynamicForm.get("ini"));
+        List<Long> excludedIngTags               = parseExcludedIds(dynamicForm.get("exi"));
+        SearchMode excludedIngTagsSearchMode     = SearchMode.fromInt(parseInteger(dynamicForm.get("iim")));
+
+        Logger.debug(RecipeBrowser.class.getName() + ".exec_searchByRecipeProperties():\n" +
+            "    minNumOfIngredients          = " + minNumOfIngredients + "\n" +
+            "    maxNumOfIngredients          = " + maxNumOfIngredients + "\n" +
+            "    sortBy                       = " + sortBy + "\n" +
+            "    sortOrder                    = " + sortOrder + "\n" +
+            "    page                         = " + page + "\n" +
+            "    includedRecipeTags           = " + includedRecipeTags + "\n" +
+            "    excludedRecipeTags           = " + excludedRecipeTags + "\n" +
+            "    includedRecipeTagsSearchMode = " + includedRecipeTagsSearchMode.name() + "\n" +
+            "    includedIngTags              = " + includedIngTags + "\n" +
+            "    excludedIngTags              = " + excludedIngTags + "\n" +
+            "    excludedIngTagsSearchMode    = " + excludedIngTagsSearchMode.name() + "\n"
+        );
+
+        Query<Recipe> searchResult = RecipesByRecipeProperties.searchByRecipeProperties
+        (
+            name,
+            includedRecipeTags,
+            excludedRecipeTags,
+            includedIngTags,
+            excludedIngTags,
+            includedRecipeTagsSearchMode,
+            excludedIngTagsSearchMode,
+            minNumOfIngredients,
+            maxNumOfIngredients
+        );
+
+        /*
+         * Remove sort order, sort by, tag language, and page from form data. They're not
+         * part of the search specific data, and in the scala template, they're
+         * added by hand, so they would be duplicated.
+         */
+        dynamicForm.data().remove("srb");
+        dynamicForm.data().remove("sro");
+        dynamicForm.data().remove("pag");
+        dynamicForm.data().remove("stl");
+
+        return RecipeViewer.searchResults
+        (
+            searchResult,
+            page,
+            sortOrder,
+            sortBy,
+            RESULT_PAGE_SIZE,
+            SearchType.BY_RECIPE_PROPERTIES,
+            dynamicForm.data()
+        );
     }
     
     /**
@@ -385,6 +460,239 @@ public class RecipeBrowser extends Controller
 
 
     /* -- PRIVATE METHODS -------------------------------------------------- */
+    
+    /**
+     * Parses the included ingredient ids from its string representation.
+     * The string representation format is:
+     *     [group_id_n1]:[group_id_n2]:...:[id_n],...
+     *
+     * @param includedStr    The string representation.
+     *
+     * @return A map in which the key is the group id, and the element are list containing
+     * ingredient ids belonging to the group. A map with "group A" only containing an empty
+     * list is returned in case parsing fails.
+     * */
+    private static Map<Long, List<Long>> parseIncludedIds(String includedStr)
+    {
+        Logger.debug(RecipeBrowser.class.getName() + ".parseIncludedIds(): includedStr = " + includedStr);
+
+        Map<Long, List<Long>> result = new HashMap<Long, List<Long>>();
+
+        /* Get the group-id tokens. */
+        if(includedStr != null)
+        {
+            StringTokenizer tokenizer = new StringTokenizer(includedStr, ",");
+
+            while(tokenizer.hasMoreTokens())
+            {
+                String token = tokenizer.nextToken();
+
+                /* Get groups, and id. */
+                StringTokenizer groupTokenizer = new StringTokenizer(token, ":");
+
+                List<String> groupsId = new ArrayList<String>();
+
+                while(groupTokenizer.hasMoreTokens())
+                {
+                    groupsId.add(groupTokenizer.nextToken());
+                }
+
+                if(groupsId.size() > 1)
+                {
+                    /* The id in question is the last element. */
+                    String idStr = groupsId.get(groupsId.size() - 1);
+                    Long id      = parseLongNum(idStr);
+
+                    groupsId.remove(groupsId.size() - 1);
+
+                    /* Getting group id-s. */
+                    for(String groupStr: groupsId)
+                    {
+                        Long groupId = groupToId(groupStr);
+
+                        if(groupId != Recipe.GROUP_ID_0)
+                        {
+                            /* Group is valid, let's add the id to the result */
+
+                            if(result.get(groupId) == null)
+                            {
+                                /* Create new list for the group. */
+                                result.put(groupId, new ArrayList<Long>());
+                            }
+
+                            result.get(groupId).add(id);
+                        }
+                        else
+                        {
+                            /* Group id is invalid. */
+                            Logger.warn(RecipeBrowser.class.getName() + ".parseIncludedIds(): groupId is invalid!");
+                        }
+                    }
+                }
+                else
+                {
+                    Logger.warn(RecipeBrowser.class.getName() + ".parseIncludedIds(): groupsId.size() < 1!\n" +
+                        "    groupsId = " + groupsId
+                    );
+                }
+            }
+        }
+        else
+        {
+            Logger.warn(RecipeBrowser.class.getName() + ".parseIncludedIds(): includedStr is null!");
+        }
+
+        /* If parsing the ids failed, create an empty result. */
+        if(result.size() == 0)
+        {
+            Logger.warn(RecipeBrowser.class.getName() + ".parseIncludedIds(): failed to parse!");
+
+            result.put(Recipe.GROUP_ID_A, new ArrayList<Long>());
+        }
+
+        return result;
+    }
+
+    /**
+     * Parses the excluded ingredient ids from its string representation.
+     *
+     * @param excludedStr    The string representation.
+     *
+     * @return The list of excluded ingredient ids.
+     * */
+    private static List<Long> parseExcludedIds(String excludedStr)
+    {
+        Logger.debug(RecipeBrowser.class.getName() + ".parseExcludedIds(): excludedStr = " + excludedStr);
+
+        List<Long> result = new ArrayList<Long>();
+
+        if(excludedStr != null)
+        {
+            /* Get the id tokens. */
+            StringTokenizer tokenizer = new StringTokenizer(excludedStr, ",");
+
+            while(tokenizer.hasMoreTokens())
+            {
+                String token = tokenizer.nextToken();
+
+                Long id = parseLongNum(token);
+
+                result.add(id);
+            }
+        }
+        else
+        {
+            Logger.warn(RecipeBrowser.class.getName() + ".parseExcludedIds(): excludedStr is null!");
+        }
+
+        return result;
+    }
+
+    /**
+     * Converts a group string to a group id.
+     *
+     * @param groupStr    The group string.
+     *
+     * @return The group id.
+     * */
+    private static Long groupToId(String groupStr)
+    {
+        Logger.debug(RecipeBrowser.class.getName() + ".groupToId(): groupStr = " + groupStr);
+
+        Long result = Recipe.GROUP_ID_0;
+
+        if(groupStr.equalsIgnoreCase("A"))
+        {
+            result = Recipe.GROUP_ID_A;
+        }
+
+        if(groupStr.equalsIgnoreCase("B"))
+        {
+            result = Recipe.GROUP_ID_B;
+        }
+
+        if(groupStr.equalsIgnoreCase("C"))
+        {
+            result = Recipe.GROUP_ID_C;
+        }
+
+        if(groupStr.equalsIgnoreCase("D"))
+        {
+            result = Recipe.GROUP_ID_D;
+        }
+
+        if(groupStr.equalsIgnoreCase("E"))
+        {
+            result = Recipe.GROUP_ID_E;
+        }
+
+        if(groupStr.equalsIgnoreCase("F"))
+        {
+            result = Recipe.GROUP_ID_F;
+        }
+
+        return result;
+    }
+
+    /**
+     * Converts a string to Integer. If conversion fails,
+     * returns 0.
+     *
+     * @return The converted integer.
+     * */
+    private static Integer parseInteger(String intStr)
+    {
+        Logger.debug(RecipeBrowser.class.getName() + ".parseInteger(): intStr = " + intStr);
+
+        Integer result = 0;
+
+        try
+        {
+            result = Integer.parseInt(intStr);
+        }
+        catch(NumberFormatException e)
+        {
+            Logger.warn(RecipeBrowser.class.getName() + ".parseInteger():\n" +
+                "    NumberFormatException! intStr = " + intStr);
+        }
+        catch(Exception e)
+        {
+            Logger.warn(RecipeBrowser.class.getName() + ".parseInteger():\n" +
+                "    Exception! intStr = " + intStr);
+        }
+
+        return result;
+    }
+
+    /**
+     * Converts a string to Long. If conversion fails,
+     * returns 0.
+     *
+     * @return The converted long.
+     * */
+    private static Long parseLongNum(String longStr)
+    {
+        Logger.debug(RecipeBrowser.class.getName() + ".parseLongNum(): longStr = " + longStr);
+
+        Long result = 0L;
+
+        try
+        {
+            result = Long.parseLong(longStr);
+        }
+        catch(NumberFormatException e)
+        {
+            Logger.warn(RecipeBrowser.class.getName() + ".parseLongNum():\n" +
+                "    NumberFormatException! longStr = " + longStr);
+        }
+        catch(Exception e)
+        {
+            Logger.warn(RecipeBrowser.class.getName() + ".parseLongNum():\n" +
+                "    Exception! longStr = " + longStr);
+        }
+
+        return result;
+    }
 
 
 

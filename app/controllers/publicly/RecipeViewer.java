@@ -116,7 +116,6 @@ public class RecipeViewer extends Controller
         if(!isError)
         {
             Map<Long, String> recipesNames           = new HashMap<Long, String>();
-            Map<Long, Integer> recipeskCalPerPortion = new HashMap<Long, Integer>();
             String usedSortOrder                     = "asc";
 
             /* Check sort order. In case it's not valid, we'll use the default "asc" */

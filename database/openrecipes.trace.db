@@ -57,3 +57,6 @@ org.h2.message.DbException: The connection was not closed by the application and
 Caused by: org.h2.jdbc.JdbcSQLException: The connection was not closed by the application and is garbage collected [90018-191]
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
 	... 14 more
+2016-04-05 20:54:56 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLException: Table "RECIPE_NAME" not found; SQL statement:
+select count(*) from ( select recipe.id FROM recipe JOIN recipe_name ON recipe.id = recipe_name.recipe_id  where (lower(recipe_name.name) like ?  and num_of_ings >= ?  and  (recipe.id) in (select recipe.id FROM recipe JOIN recipe_tag_recipe ON recipe.id = recipe_tag_recipe.recipe_id  where recipe_tag_recipe.recipe_tag_id in (?, ? )  and not ( (recipe.id) in (select distinct t0.id from recipe t0 join recipe_tag_recipe u1z_ on u1z_.recipe_id = t0.id  join recipe_tag u1 on u1.id = u1z_.recipe_tag_id  where 1=0) )  GROUP BY recipe.id)  and  (recipe.id) in (select recipe.id FROM recipe  where not ( (recipe.id) in (select distinct t0.id from recipe t0 join recipe_ingredient u1 on u1.recipe_id = t0.id  join ingredient u2 on u2.id = u1.ingredient_id  join ingredient_tag_ingredient u3z_ on u3z_.ingredient_id = u2.id  join ingredient_tag u3 on u3.id = u3z_.ingredient_tag_id  where 1=0) )) )) [42102-191]
