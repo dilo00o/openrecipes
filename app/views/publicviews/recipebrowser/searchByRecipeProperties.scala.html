@@ -60,27 +60,6 @@
                 </div>
             </div>
             
-            <div class = "row">
-                <div class = "col-xs-12 form-group">
-                    <label>Number of ingredients</label>
-                    <div id = "or-rec-browser-sbr-num-of-ings-range"></div>
-
-                    <div class = "row">
-                        <div class = "form-group">
-                            <div class = "pull-left col-xs-2">
-                                <label>Min</label>
-                                <input type = "text" class = "form-control input-sm"  id = "or-rec-browser-sbr-num-of-ings-range-min">
-                            </div>
-
-                            <div class = "pull-right col-xs-2">
-                                <label>Max</label>
-                                <input type = "text" class = "form-control input-sm"  id = "or-rec-browser-sbr-num-of-ings-range-max">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
             
             <h4>Filter search results by recipe tags</h4>
             
@@ -170,16 +149,12 @@
 
             <input id = "or-rec-browser-sbr-form-nam" type = "hidden" name = "nam" />
             <input id = "or-rec-browser-sbr-form-lan" type = "hidden" name = "srl" />
-            <input id = "or-rec-browser-sbr-form-mnk" type = "hidden" name = "mnk" />
-            <input id = "or-rec-browser-sbr-form-mxk" type = "hidden" name = "mxk" />
             <input id = "or-rec-browser-sbr-form-inr" type = "hidden" name = "inr" />
             <input id = "or-rec-browser-sbr-form-exr" type = "hidden" name = "exr" />
             <input id = "or-rec-browser-sbr-form-ini" type = "hidden" name = "ini" />
             <input id = "or-rec-browser-sbr-form-exi" type = "hidden" name = "exi" />
             <input id = "or-rec-browser-sbr-form-irm" type = "hidden" name = "irm" />
             <input id = "or-rec-browser-sbr-form-iim" type = "hidden" name = "iim" />
-            <input id = "or-rec-browser-sbr-form-mni" type = "hidden" name = "mni" />
-            <input id = "or-rec-browser-sbr-form-mxn" type = "hidden" name = "mxn" />
         }
         
         <div class = "dropdown clearfix or-context-menu" id = 'or-rec-browser-tags-context-menu'>
@@ -204,60 +179,6 @@
                 
                 /* -- SEARCH BY RECIPE PROPERTIES INIT ---------- */
                 
-                /* -- Number of ingredients --------------------- */
-
-                var maxNumOfIngs = @Recipe.MAX_NUM_OF_INGREDIENTS;
-
-                noUiSlider.create
-                (
-            		document.getElementById("or-rec-browser-sbr-num-of-ings-range"),
-                    {
-                        range: {"min": 0, "max": (maxNumOfIngs + 1)},
-                        start: [0, maxNumOfIngs / 2],
-                        connect: true,
-                        step: 1
-                    }
-                );
-                
-                var numOfIngsSlider = document.getElementById("or-rec-browser-sbr-num-of-ings-range");
-                var minNumIngInput  = document.getElementById('or-rec-browser-sbr-num-of-ings-range-min');
-                var maxNumIngInput  = document.getElementById('or-rec-browser-sbr-num-of-ings-range-max');
-
-                numOfIngsSlider.noUiSlider.on
-                (
-            		'update',
-            		function(values, handle)
-                    {
-                        var value = values[handle];
-    
-                        if(handle)
-                        {
-                        	maxNumIngInput.value = Math.round(value);
-                        }
-                        else
-                        {
-                        	minNumIngInput.value = Math.round(value);
-                        }
-                    }
-        		);
-
-                minNumIngInput.addEventListener
-                (
-                    'change', 
-                    function()
-                    {
-                    	numOfIngsSlider.noUiSlider.set([null, this.value]);
-                    }
-                );
-                
-                maxNumIngInput.addEventListener
-                (
-                    'change', 
-                    function()
-                    {
-                        numOfIngsSlider.noUiSlider.set([null, this.value]);
-                    }
-                );
                 
                 
                 /* -- Init filter by recipe tags ---------------- */
@@ -542,7 +463,6 @@
                     {
                     	/* Collect data. */
                         var searchName  = $("#or-rec-browser-sbr-rec-name-input").val();
-                        var noiValues   = $('#or-rec-browser-sbr-num-of-ings-range').val();
                         var incRecTags  = "";
                         var excRecTags  = "";
                         var incIngTags  = "";
@@ -642,8 +562,6 @@
                         
                         /* Set search params. */
                         $("#or-rec-browser-sbr-form-nam").val(searchName);
-                        $("#or-rec-browser-sbr-form-mni").val(noiValues[0]);
-                        $("#or-rec-browser-sbr-form-mxn").val(noiValues[1]);
 
                         $("#or-rec-browser-sbr-form-inr").val(incRecTags);
                         $("#or-rec-browser-sbr-form-exr").val(excRecTags);

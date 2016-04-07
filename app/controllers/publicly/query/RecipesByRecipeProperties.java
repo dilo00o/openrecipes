@@ -65,8 +65,6 @@ public class RecipesByRecipeProperties
      * @param excludedIngredientTags              The excluded ingredient tags.
      * @param includedRecipeTagsSearchMode        Search mode for included recipe tags.
      * @param includedIngredientTagsSearchMode    Search mode for included ingredient tags.
-     * @param minNumOfIngredients                 Minimum number of ingredients.
-     * @param maxNumOfIngredients                 Maximum number of ingredients.
      *
      * @return The search result page. An empty page is returned in case of an error.
      * */
@@ -78,9 +76,7 @@ public class RecipesByRecipeProperties
         Map<Long, List<Long>> includedIngredientTags,
         List<Long> excludedIngredientTags,
         RecipeBrowser.SearchMode includedRecipeTagsSearchMode,
-        RecipeBrowser.SearchMode includedIngredientTagsSearchMode,
-        Integer minNumOfIngredients,
-        Integer maxNumOfIngredients
+        RecipeBrowser.SearchMode includedIngredientTagsSearchMode
     )
     {
         Logger.debug(RecipesByRecipeProperties.class.getName() + ".searchByRecipeProperties(): \n" +
@@ -90,13 +86,8 @@ public class RecipesByRecipeProperties
             "    includedIngredientTags           = " + includedIngredientTags + "\n" +
             "    excludedIngredientTags           = " + excludedIngredientTags + "\n" +
             "    includedRecipeTagsSearchMode     = " + includedRecipeTagsSearchMode.name() + "\n" +
-            "    includedIngredientTagsSearchMode = " + includedIngredientTagsSearchMode.name() + "\n" +
-            "    minNumOfIngredients              = " + minNumOfIngredients + "\n" +
-            "    maxNumOfIngredients              = " + maxNumOfIngredients
+            "    includedIngredientTagsSearchMode = " + includedIngredientTagsSearchMode.name()
         );
-
-        Integer minni = determineMin(minNumOfIngredients, maxNumOfIngredients, Recipe.MAX_NUM_OF_INGREDIENTS);
-        Integer maxni = determineMax(minni, maxNumOfIngredients, Recipe.MAX_NUM_OF_INGREDIENTS);
 
         String rawSqlStr =
             "SELECT recipe.id FROM recipe ";
@@ -109,15 +100,7 @@ public class RecipesByRecipeProperties
         ExpressionList<Recipe> query = Recipe.find
             .setRawSql(rawSql)
             .where()
-                .conjunction()
-                    .add(Expr.ilike("name", "%" + name + "%"))
-                    .add(Expr.ge("num_of_ings", minni));
-
-        if(maxni <= Recipe.MAX_NUM_OF_INGREDIENTS)
-        {
-            /* Use maximum value. */
-            query.add(Expr.le("num_of_ings", maxni));
-        }
+                .add(Expr.ilike("name", "%" + name + "%"));
 
         Query<Recipe> inclRecTagsQuery = getRecipes_RECIPE_TAGS
         (

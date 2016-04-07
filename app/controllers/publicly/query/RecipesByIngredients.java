@@ -79,8 +79,6 @@ public class RecipesByIngredients
      *                                            So the meaning of group mode is: Any of the given groups's all ingredients
      *                                            should be present.
      *
-     * @param usedNameLanguage      The used language for the resulting ingredient names.
-     *
      * @return The list of found ingredients query based on the criteria, or an empty list,
      *         if nothing is found.
      * */
@@ -88,8 +86,7 @@ public class RecipesByIngredients
     (
         Map<Long, List<Long>> includedIngredientIds,
         List<Long> excludedIngredientIds,
-        RecipeBrowser.SearchMode searchMode,
-        Long usedNameLanguage
+        RecipeBrowser.SearchMode searchMode
     )
     {
         Logger.debug(RecipesByIngredients.class.getName() + ".searchByIngredients(): \n" +
@@ -130,28 +127,28 @@ public class RecipesByIngredients
                 {
                     /* In exact search, excluded ingredient has no meaning. */
 
-                    result = searchByIngredients_EXACT(includedIngredientIds, usedNameLanguage);
+                    result = searchByIngredients_EXACT(includedIngredientIds);
 
                     break;
                 }
 
                 case AT_LEAST:
                 {
-                    result = searchByIngredients_AT_LEAST(includedIngredientIds, excludedIngredientIds, usedNameLanguage);
+                    result = searchByIngredients_AT_LEAST(includedIngredientIds, excludedIngredientIds);
 
                     break;
                 }
 
                 case ANY_OF:
                 {
-                    result = searchByIngredients_ANY_OF(includedIngredientIds, excludedIngredientIds, usedNameLanguage);
+                    result = searchByIngredients_ANY_OF(includedIngredientIds, excludedIngredientIds);
 
                     break;
                 }
 
                 case GROUP:
                 {
-                    result = searchByIngredients_GROUP(includedIngredientIds, excludedIngredientIds, usedNameLanguage);
+                    result = searchByIngredients_GROUP(includedIngredientIds, excludedIngredientIds);
 
                     break;
                 }
@@ -214,14 +211,12 @@ public class RecipesByIngredients
      *
      * @param includedIngredientIds    The included ingredient ids. The key is the group id, the values are
      *                                 the ingredient ids in for the group.
-     * @param usedLanguage             The used language for resulting recipes' names.
      *
      * @return The query.
      * */
     private static Query<Recipe> searchByIngredients_EXACT
     (
-        Map<Long, List<Long>> includedIngredientIds,
-        Long usedLanguage
+        Map<Long, List<Long>> includedIngredientIds
     )
     {
         Logger.debug(RecipesByIngredients.class.getName() + ".searchByIngredients_EXACT()");
@@ -231,8 +226,6 @@ public class RecipesByIngredients
         String rawSqlStr =
             "SELECT recipe.id FROM recipe " +
             "JOIN recipe_ingredient ON recipe.id = recipe_ingredient.recipe_id " +
-            "JOIN recipe_name ON recipe.id = recipe_name.recipe_id " +
-            "WHERE recipe_name.language_id = " + usedLanguage + " " +
             "GROUP BY recipe.id " +
             "HAVING COUNT(recipe_ingredient.ingredient_id) = " + includedIngredientIds.get(Recipe.GROUP_ID_A).size();
 
@@ -256,15 +249,13 @@ public class RecipesByIngredients
      * @param includedIngredientIds    The included ingredient ids. The key is the group id, the values are
      *                                 the ingredient ids in for the group.
      * @param excludedIngredientIds    The excluded ingredient ids.
-     * @param usedLanguage             The used language for resulting recipes' names.
      *
      * @return The query.
      * */
     private static Query<Recipe> searchByIngredients_AT_LEAST
     (
         Map<Long, List<Long>> includedIngredientIds,
-        List<Long> excludedIngredientIds,
-        Long usedLanguage
+        List<Long> excludedIngredientIds
     )
     {
         Logger.debug(RecipesByIngredients.class.getName() + ".searchByIngredients_AT_LEAST()");
@@ -274,8 +265,6 @@ public class RecipesByIngredients
         String rawSqlStr =
             "SELECT recipe.id FROM recipe " +
             "JOIN recipe_ingredient ON recipe.id = recipe_ingredient.recipe_id " +
-            "JOIN recipe_name ON recipe.id = recipe_name.recipe_id " +
-            "WHERE recipe_name.language_id = " + usedLanguage + " " +
             "GROUP BY recipe.id " +
             "HAVING COUNT(recipe_ingredient.ingredient_id) = " + includedIngredientIds.get(Recipe.GROUP_ID_A).size();
 
@@ -301,15 +290,13 @@ public class RecipesByIngredients
      * @param includedIngredientIds    The included ingredient ids. The key is the group id, the values are
      *                                 the ingredient ids in for the group.
      * @param excludedIngredientIds    The excluded ingredient ids.
-     * @param usedLanguage             The used language for resulting recipes' names.
      *
      * @return The query.
      * */
     private static Query<Recipe> searchByIngredients_ANY_OF
     (
         Map<Long, List<Long>> includedIngredientIds,
-        List<Long> excludedIngredientIds,
-        Long usedLanguage
+        List<Long> excludedIngredientIds
     )
     {
         Logger.debug(RecipesByIngredients.class.getName() + ".searchByIngredients_ANY_OF()");
@@ -319,8 +306,6 @@ public class RecipesByIngredients
         String rawSqlStr =
             "SELECT recipe.id FROM recipe " +
             "JOIN recipe_ingredient ON recipe.id = recipe_ingredient.recipe_id " +
-            "JOIN recipe_name ON recipe.id = recipe_name.recipe_id " +
-            "WHERE recipe_name.language_id = " + usedLanguage + " " +
             "GROUP BY recipe.id"; // TODO: Group by is not needed, since there's no aggregate function used
 
         RawSql rawSql = RawSqlBuilder.parse(rawSqlStr)
@@ -352,8 +337,7 @@ public class RecipesByIngredients
     private static Query<Recipe> searchByIngredients_GROUP
     (
         Map<Long, List<Long>> includedIngredientIds,
-        List<Long> excludedIngredientIds,
-        Long usedLanguage
+        List<Long> excludedIngredientIds
     )
     {
         Logger.debug(RecipesByIngredients.class.getName() + ".searchByIngredients_GROUP()");
@@ -364,8 +348,6 @@ public class RecipesByIngredients
 
         String rawSqlStr =
             "SELECT recipe.id FROM recipe " +
-            "JOIN recipe_name ON recipe.id = recipe_name.recipe_id " +
-            "WHERE recipe_name.language_id = " + usedLanguage + " " +
             "GROUP BY recipe.id ";
 
         RawSql rawSql = RawSqlBuilder.parse(rawSqlStr)
@@ -384,8 +366,6 @@ public class RecipesByIngredients
             /* Subquery for getting recipes which ingredients are in the current group (AT LEAST) */
             String rawSubSqlStr =
                 "SELECT recipe.id FROM recipe " +
-                "JOIN recipe_ingredient ON recipe.id = recipe_ingredient.recipe_id " +
-                "WHERE recipe_name.language_id = " + usedLanguage + " " +
                 "GROUP BY recipe.id " +
                 "HAVING COUNT(recipe_ingredient.ingredient_id) = " + groupIngs.size();
 

@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 
+import controllers.publicly.query.RecipesByIngredients;
 import controllers.publicly.query.RecipesByRecipeProperties;
 import models.Ingredient;
 import models.IngredientName;
@@ -107,10 +108,54 @@ public class RecipeBrowser extends Controller
 
         Result result = null;
 
-        /* TODO */
-        result = searchByIngredients();
+        DynamicForm dynamicForm = formFactory.form().bindFromRequest();
 
-        return result; 
+        String sortBy                        = dynamicForm.get("srb");
+        String sortOrder                     = dynamicForm.get("sro");
+        Integer page                         = parseInteger(dynamicForm.get("pag"));
+
+        Map<Long, List<Long>> includedIngs   = parseIncludedIds(dynamicForm.get("ini"));
+        List<Long> excludedIngs              = parseExcludedIds(dynamicForm.get("exi"));
+        SearchMode searchMode                = SearchMode.fromInt(parseInteger(dynamicForm.get("srm")));
+
+        Logger.debug(RecipeBrowser.class.getName() + ".exec_searchByIngredients():\n" +
+            "    sortBy          = " + sortBy + "\n" +
+            "    sortOrder       = " + sortOrder + "\n" +
+            "    page            = " + page + "\n" +
+            "    includedIngs    = " + includedIngs + "\n" +
+            "    excludedIngs    = " + excludedIngs + "\n" +
+            "    searchMode      = " + searchMode.name()
+        );
+
+        Query<Recipe> searchResult = RecipesByIngredients.searchByIngredients
+        (
+            includedIngs,
+            excludedIngs,
+            searchMode
+        );
+
+        /*
+         * Remove sort order, sort by, recipe tags language, and page from form data. They're not
+         * part of the search specific data, and in the scala template, they're
+         * added by hand, so they would be duplicated.
+         */
+        dynamicForm.data().remove("srb");
+        dynamicForm.data().remove("sro");
+        dynamicForm.data().remove("pag");
+        dynamicForm.data().remove("stl");
+        
+        result = RecipeViewer.searchResults
+        (
+            searchResult,
+            page,
+            sortOrder,
+            sortBy,
+            RESULT_PAGE_SIZE,
+            SearchType.BY_INGREDIENTS,
+            dynamicForm.data()
+        );
+
+        return result;
     }
     
     /**
@@ -142,8 +187,6 @@ public class RecipeBrowser extends Controller
         DynamicForm dynamicForm = formFactory.form().bindFromRequest();
 
         String name                              = dynamicForm.get("nam");
-        Integer minNumOfIngredients              = parseInteger(dynamicForm.get("mni"));
-        Integer maxNumOfIngredients              = parseInteger(dynamicForm.get("mxn"));
         String sortBy                            = dynamicForm.get("srb");
         String sortOrder                         = dynamicForm.get("sro");
         Integer page                             = parseInteger(dynamicForm.get("pag"));
@@ -157,8 +200,6 @@ public class RecipeBrowser extends Controller
         SearchMode excludedIngTagsSearchMode     = SearchMode.fromInt(parseInteger(dynamicForm.get("iim")));
 
         Logger.debug(RecipeBrowser.class.getName() + ".exec_searchByRecipeProperties():\n" +
-            "    minNumOfIngredients          = " + minNumOfIngredients + "\n" +
-            "    maxNumOfIngredients          = " + maxNumOfIngredients + "\n" +
             "    sortBy                       = " + sortBy + "\n" +
             "    sortOrder                    = " + sortOrder + "\n" +
             "    page                         = " + page + "\n" +
@@ -178,9 +219,7 @@ public class RecipeBrowser extends Controller
             includedIngTags,
             excludedIngTags,
             includedRecipeTagsSearchMode,
-            excludedIngTagsSearchMode,
-            minNumOfIngredients,
-            maxNumOfIngredients
+            excludedIngTagsSearchMode
         );
 
         /*

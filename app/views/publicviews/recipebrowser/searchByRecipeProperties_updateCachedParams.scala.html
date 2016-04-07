@@ -61,34 +61,6 @@ if(typeof(Storage) !== "undefined")
         {
             storage.set(SBR_MAN_RECIPE_NAME_STR_KEY, $("#or-rec-browser-sbr-rec-name-input").val());
         }
-    );    
-
-    $("#or-rec-browser-sbr-num-of-ings-range").on
-    (
-        'change.openrecipes.updatecachedparams.sbr',
-        function()
-        {
-            storage.set(SBR_MAN_NUMOF_INGS_MIN_KEY, $("#or-rec-browser-sbr-num-of-ings-range-min").val());
-            storage.set(SBR_MAN_NUMOF_INGS_MAX_KEY, $("#or-rec-browser-sbr-num-of-ings-range-max").val());
-        }
-    );
-
-    $("#or-rec-browser-sbr-num-of-ings-range-min").on
-    (
-        'change.openrecipes.updatecachedparams.sbr',
-        function()
-        {
-            storage.set(SBR_MAN_NUMOF_INGS_MIN_KEY, $("#or-rec-browser-sbr-num-of-ings-range-min").val());
-        }
-    );
-
-    $("#or-rec-browser-sbr-num-of-ings-range-max").on
-    (
-        'change.openrecipes.updatecachedparams.sbr',
-        function()
-        {
-            storage.set(SBR_MAN_NUMOF_INGS_MAX_KEY, $("#or-rec-browser-sbr-num-of-ings-range-max").val());
-        }
     );
 
 

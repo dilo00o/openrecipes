@@ -33,16 +33,6 @@ if(typeof(Storage) !== "undefined")
         $("#or-rec-browser-sbr-rec-name-input").val(storage.get(SBR_MAN_RECIPE_NAME_STR_KEY));
     }
 
-    if(storage.isSet(SBR_MAN_NUMOF_INGS_MIN_KEY))
-    {
-        $("#or-rec-browser-sbr-num-of-ings-range").val([storage.get(SBR_MAN_NUMOF_INGS_MIN_KEY), null]);
-    }
-
-    if(storage.isSet(SBR_MAN_NUMOF_INGS_MAX_KEY))
-    {
-        $("#or-rec-browser-sbr-num-of-ings-range").val([null, storage.get(SBR_MAN_NUMOF_INGS_MAX_KEY)]);
-    }
-
 
 
     /* -- Filter by rec. tags ------------ */
