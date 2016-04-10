@@ -19,15 +19,21 @@
  *@
 
 @import privateviews._
+@import helper._
 
 @main("Parse Ingredients")("Parse Ingredients"){
 }{
     <h1>Admin mode - Parse ingredients</h1>
     
     
-    <div class = "or-page-content">
-        <p>
-        Select from the menu.
-        </p>
-    </div>
+    @form(controllers.privately.routes.Home.exec_parseIngredients(), 'role -> "form") {
+    
+        <div class = "row">
+            <div class = "col-sm-2 form-group pull-right">
+                <label style = "visibility: hidden;">Search</label>
+                <button type = "submit" class = "form-control btn btn-primary">Parse ingredients</button>
+            </div>
+        </div>
+        
+    }
 }

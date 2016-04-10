@@ -63,3 +63,45 @@ select count(*) from ( select recipe.id FROM recipe JOIN recipe_name ON recipe.i
 2016-04-07 17:44:39 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLException: Table "RECIPE_NAME" not found; SQL statement:
 select count(*) from ( select recipe.id FROM recipe JOIN recipe_ingredient ON recipe.id = recipe_ingredient.recipe_id JOIN recipe_name ON recipe.id = recipe_name.recipe_id WHERE recipe_name.language_id = 0  and (recipe_ingredient.ingredient_id in (?, ? )  and not ( (recipe.id) in (select distinct t0.id from recipe t0 join recipe_ingredient u1 on u1.recipe_id = t0.id  where 1=0) ) )  GROUP BY recipe.id) [42102-191]
+2016-04-10 19:25:09 jdbc[5]: null
+org.h2.message.DbException: The connection was not closed by the application and is garbage collected [90018-191]
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.message.DbException.get(DbException.java:144)
+	at org.h2.jdbc.JdbcConnection.closeOld(JdbcConnection.java:173)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:118)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:91)
+	at org.h2.Driver.connect(Driver.java:72)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:95)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:101)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:314)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:171)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:436)
+	at com.zaxxer.hikari.pool.HikariPool.access$500(HikariPool.java:65)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:567)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:560)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: org.h2.jdbc.JdbcSQLException: The connection was not closed by the application and is garbage collected [90018-191]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	... 19 more
+2016-04-10 19:29:36 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLException: Unable to create or alter sequence "INGREDIENT_SEQ" because of invalid attributes (start value "0", min value "1", max value "9223372036854775807", increment "1"); SQL statement:
+alter sequence ingredient_seq restart with 0 [90009-191]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.schema.Sequence.modify(Sequence.java:121)
+	at org.h2.command.dml.AlterSequence.update(AlterSequence.java:100)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:98)
+	at org.h2.command.Command.executeUpdate(Command.java:258)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:184)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:158)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1388)
+	at org.h2.server.web.WebApp.query(WebApp.java:1061)
+	at org.h2.server.web.WebApp$1.next(WebApp.java:1023)
+	at org.h2.server.web.WebApp$1.next(WebApp.java:1010)
+	at org.h2.server.web.WebThread.process(WebThread.java:164)
+	at org.h2.server.web.WebThread.run(WebThread.java:89)
+	at java.lang.Thread.run(Thread.java:745)

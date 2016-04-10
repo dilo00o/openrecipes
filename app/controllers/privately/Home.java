@@ -23,11 +23,16 @@ import java.util.List;
 
 import com.google.inject.Inject;
 
+import models.Ingredient;
+import models.IngredientName;
+import models.Language;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Result;
+import scrapers.IngredientScraper;
+import scrapers.data.ScrapedIngredient;
 import views.html.privateviews.*;
 
 /**
@@ -122,11 +127,35 @@ public class Home extends Controller
      * 
      * @return
      */
-    public Result exec_parseIngredientsHome()
+    public Result exec_parseIngredients()
     {
        Result result = null;
        
-       // TODO
+       IngredientScraper ingScraper = new IngredientScraper();
+       
+       int scrapedNumber = 0;
+       
+       for(ScrapedIngredient scrapedIng: ingScraper.getScrapedIngredients())
+       {
+           Ingredient dbIngredient = new Ingredient();
+           IngredientName ingName  = new IngredientName();
+           
+           ingName.name     = scrapedIng.getName();
+           ingName.language = Language.find.byId(1L); /* hun */
+           
+           dbIngredient.names = new ArrayList<IngredientName>();
+           dbIngredient.names.add(ingName);
+           
+           dbIngredient.save();
+           
+           ingName.ingredient = dbIngredient;
+           
+           ingName.save();
+           
+           scrapedNumber++;
+       }
+       
+       flash("success", "saved " + scrapedNumber + " ingredient(s)");
        
        result = ok
        (

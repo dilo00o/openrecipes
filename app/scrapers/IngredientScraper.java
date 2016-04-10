@@ -107,7 +107,15 @@ public class IngredientScraper
         {
             for(String sourcePage: sourcePages)
             {
+                Logger.debug(IngredientScraper.class.getName() + ".getScrapedIngredients()\n" +
+                    "    parsing from: " + sourcePage
+                );
+                
                 List<ScrapedIngredient> scrapedIngsFromPage = getIngredientsFromPage(sourcePage);
+                
+                Logger.debug(IngredientScraper.class.getName() + ".getScrapedIngredients()\n" +
+                    "    parsed ingredients: " + scrapedIngsFromPage.size()
+                );
                 
                 scrapedIngredients.addAll(scrapedIngsFromPage);
             }

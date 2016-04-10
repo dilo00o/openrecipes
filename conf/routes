@@ -57,4 +57,7 @@ GET     /admin/pi/                  controllers.privately.Home.parseIngredientsH
 GET     /admin/pr/                  controllers.privately.Home.parseRecipesHome()
 
 # Admin execute parse recipes
-POST    /admin/pr/                  controllers.privately.Home.exec_parseRecipes()
+POST    /admin/pr/exec/             controllers.privately.Home.exec_parseRecipes()
+
+# Admin execute parse ingredients
+GET     /admin/pi/exec/             controllers.privately.Home.exec_parseIngredients()
