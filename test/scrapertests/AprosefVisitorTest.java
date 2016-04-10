@@ -16,27 +16,24 @@
  *
  */
 
-import org.junit.*;
+package scrapertests;
 
-import models.Language;
-import static play.test.Helpers.*;
+import org.junit.Before;
+import org.junit.Test;
+import play.Logger;
+import scrapers.data.ScrapedRecipe;
+import scrapers.visitors.AprosefVisitor;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
- * Integration test class.
+ * For testing the Aprosef visitor.
  *
  * @author Oliver Dozsa
  */
-public class IntegrationTest
+public class AprosefVisitorTest
 {
-    private Map<String, Object> config;
-    
-    
-    
     /* --------------------------------------------------------------------- */
     /* ATTRIBUTES                                                            */
     /* --------------------------------------------------------------------- */
@@ -51,6 +48,11 @@ public class IntegrationTest
 
     /* -- PRIVATE ATTRIBUTES ----------------------------------------------- */
 
+    /**
+     * The visitor.
+     * */
+    private AprosefVisitor asVisitor;
+
 
 
     /* --------------------------------------------------------------------- */
@@ -58,63 +60,45 @@ public class IntegrationTest
     /* --------------------------------------------------------------------- */
 
     /* -- PUBLIC METHODS --------------------------------------------------- */
-    
+
+    /**
+     * Used to initialize what's needed for tests.
+     */
     @Before
     public void setup()
     {
-        config = new HashMap<String, Object>();
-        
-        config.putAll(inMemoryDatabase("default"));
-        config.put("play.evolutions.db.default.autoApply", "true");
+        asVisitor = new AprosefVisitor();
     }
-    
-    @After
-    public void tearDown()
-    {
-        
-    }
-    
+
+    /**
+     * Test the initialization of the visitor.
+     */
     @Test
-    public void testLanguage()
-    {   
-        running
-        (
-            fakeApplication(config),
-            new Runnable()
+    public void testConnection()
+    {
+        assertNotNull(asVisitor);
+
+        assertTrue(asVisitor.isConnected());
+    }
+
+    /**
+     * Tests scraping a few recipes.
+     */
+    @Test
+    public void testScraping()
+    {
+        /* The number of recipes to scrape to make sure there's at least one "paging". */
+        int n = 60;
+
+        for(int i = 0; i < n; i++)
+        {
+            if(asVisitor.hasMoreElements())
             {
-                public void run()
-                {
-                    /* Create */
-                    String testIsoName = "testIsoName";
-                    
-                    Language testLang = new Language();
-                    
-                    testLang.isoName = testIsoName;
-                    
-                    testLang.save();
-                    
-                    /* Query */
-                    Language dbTestLang = Language.find.where().eq("isoName", testIsoName).findUnique();
-                    
-                    assertEquals("DB name and test name are not the same!", testIsoName, dbTestLang.isoName);
-                    
-                    /* Modify */
-                    testIsoName = "new test iso name";
-                    
-                    dbTestLang.isoName = testIsoName;
-                    
-                    dbTestLang.save();
-                    
-                    dbTestLang = Language.find.where().eq("isoName", testIsoName).findUnique();
-                    
-                    assertEquals("DB name and test name are not the same after modification!", testIsoName, dbTestLang.isoName);
-                    
-                    /* Delete. */
-                    
-                    assertTrue("Could not delete language!", dbTestLang.delete());
-                }
+                ScrapedRecipe recipe = asVisitor.nextElement();
+
+                Logger.info(recipe.toString());
             }
-        );
+        }
     }
 
 

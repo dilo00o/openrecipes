@@ -46,3 +46,15 @@ GET     /browse/recipes/getrecipetags                   controllers.publicly.Rec
 ###############################################################################
 # PRIVATE PART
 ###############################################################################
+
+# Admin home page
+GET     /admin/                     controllers.privately.Home.index()
+
+# Admin parse ingredients page
+GET     /admin/pi/                  controllers.privately.Home.parseIngredientsHome()
+
+# Admin parse recipes page
+GET     /admin/pr/                  controllers.privately.Home.parseRecipesHome()
+
+# Admin execute parse recipes
+POST    /admin/pr/                  controllers.privately.Home.exec_parseRecipes()

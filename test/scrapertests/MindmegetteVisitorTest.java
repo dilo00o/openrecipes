@@ -16,27 +16,25 @@
  *
  */
 
-import org.junit.*;
+package scrapertests;
 
-import models.Language;
-import static play.test.Helpers.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.junit.Before;
+import org.junit.Test;
 
-import static org.junit.Assert.*;
+import play.Logger;
+import scrapers.data.ScrapedRecipe;
+import scrapers.visitors.MindmegetteVisitor;
 
 /**
- * Integration test class.
+ * Test class for mindmegette visitor.
  *
  * @author Oliver Dozsa
  */
-public class IntegrationTest
+public class MindmegetteVisitorTest
 {
-    private Map<String, Object> config;
-    
-    
-    
     /* --------------------------------------------------------------------- */
     /* ATTRIBUTES                                                            */
     /* --------------------------------------------------------------------- */
@@ -50,6 +48,11 @@ public class IntegrationTest
 
 
     /* -- PRIVATE ATTRIBUTES ----------------------------------------------- */
+    
+    /**
+     * The visitor.
+     */
+    private MindmegetteVisitor visitor;
 
 
 
@@ -62,59 +65,45 @@ public class IntegrationTest
     @Before
     public void setup()
     {
-        config = new HashMap<String, Object>();
-        
-        config.putAll(inMemoryDatabase("default"));
-        config.put("play.evolutions.db.default.autoApply", "true");
+        visitor = new MindmegetteVisitor();
     }
     
-    @After
-    public void tearDown()
-    {
-        
-    }
-    
+    /**
+     * Test the initialization of the visitor.
+     */
     @Test
-    public void testLanguage()
-    {   
-        running
-        (
-            fakeApplication(config),
-            new Runnable()
+    public void testConnection()
+    {
+        assertNotNull(visitor);
+
+        assertTrue(visitor.isConnected());
+    }
+
+    /**
+     * Tests scraping a few recipes.
+     */
+    @Test
+    public void testScraping()
+    {
+        /* The number of recipes to scrape to make sure there's at least one "paging". */
+        int n = 60;
+
+        for(int i = 0; i < n; i++)
+        {
+            if(visitor.hasMoreElements())
             {
-                public void run()
+                ScrapedRecipe recipe = visitor.nextElement();
+                
+                if(recipe == null)
                 {
-                    /* Create */
-                    String testIsoName = "testIsoName";
-                    
-                    Language testLang = new Language();
-                    
-                    testLang.isoName = testIsoName;
-                    
-                    testLang.save();
-                    
-                    /* Query */
-                    Language dbTestLang = Language.find.where().eq("isoName", testIsoName).findUnique();
-                    
-                    assertEquals("DB name and test name are not the same!", testIsoName, dbTestLang.isoName);
-                    
-                    /* Modify */
-                    testIsoName = "new test iso name";
-                    
-                    dbTestLang.isoName = testIsoName;
-                    
-                    dbTestLang.save();
-                    
-                    dbTestLang = Language.find.where().eq("isoName", testIsoName).findUnique();
-                    
-                    assertEquals("DB name and test name are not the same after modification!", testIsoName, dbTestLang.isoName);
-                    
-                    /* Delete. */
-                    
-                    assertTrue("Could not delete language!", dbTestLang.delete());
+                    Logger.error("recipe is null!");
                 }
+                else
+                {
+                    Logger.info(recipe.toString());
+                }                
             }
-        );
+        }
     }
 
 

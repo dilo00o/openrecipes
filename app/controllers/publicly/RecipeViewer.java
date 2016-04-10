@@ -20,21 +20,14 @@ package controllers.publicly;
 
 import com.avaje.ebean.PagedList;
 import com.avaje.ebean.Query;
-import models.*;
-import models.IngredientName;
 import models.Recipe;
-import models.RecipeIngredient;
 import play.Logger;
-import play.data.DynamicForm;
-import play.data.Form;
 import play.mvc.Result;
 import play.mvc.Controller;
 
 import views.html.publicviews.recipeview.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -144,7 +137,7 @@ public class RecipeViewer extends Controller
             
             Logger.info(RecipeViewer.class.getName() + " recipePage.getList().size(): " + recipePage.getList().size());
 
-            if(recipePage != null)
+            if(recipePage.getTotalRowCount() > 0)
             {
                 for(Recipe recipe: recipePage.getList())
                 {
@@ -189,66 +182,7 @@ public class RecipeViewer extends Controller
 
     /* -- PRIVATE METHODS -------------------------------------------------- */
 
-    /**
-     * Converts a string to Integer. If conversion fails,
-     * returns 0.
-     *
-     * @return The converted integer.
-     * */
-    private static Integer parseInteger(String intStr)
-    {
-        Logger.debug(RecipeViewer.class.getName() + ".parseInteger(): intStr = " + intStr);
-
-        Integer result = 0;
-
-        try
-        {
-            result = Integer.parseInt(intStr);
-        }
-        catch(NumberFormatException e)
-        {
-            Logger.warn(RecipeViewer.class.getName() + ".parseInteger():\n" +
-                "    NumberFormatException! intStr = " + intStr);
-        }
-        catch(Exception e)
-        {
-            Logger.warn(RecipeViewer.class.getName() + ".parseInteger():\n" +
-                "    Exception! intStr = " + intStr);
-        }
-
-        return result;
-    }
-
-    /**
-     * Converts a string to Long. If conversion fails,
-     * returns 0.
-     *
-     * @return The converted long.
-     * */
-    private static Long parseLongNum(String longStr)
-    {
-        Logger.debug(RecipeViewer.class.getName() + ".parseLongNum(): longStr = " + longStr);
-
-        Long result = 0L;
-
-        try
-        {
-            result = Long.parseLong(longStr);
-        }
-        catch(NumberFormatException e)
-        {
-            Logger.warn(RecipeViewer.class.getName() + ".parseLongNum():\n" +
-                "    NumberFormatException! longStr = " + longStr);
-        }
-        catch(Exception e)
-        {
-            Logger.warn(RecipeViewer.class.getName() + ".parseLongNum():\n" +
-                "    Exception! longStr = " + longStr);
-        }
-
-        return result;
-    }
-
+    
     /**
      * Checks the parameters of the searchResults() method.
      *

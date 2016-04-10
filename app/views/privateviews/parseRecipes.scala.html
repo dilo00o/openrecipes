@@ -1,0 +1,52 @@
+@*
+ *
+ *  Copyright 2016 Oliver Dozsa
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ *@
+
+@import privateviews._
+@import helper._
+
+@main("Parse Recipes")("Parse Recipes"){
+}{
+    <h1>Admin mode - Parse recipes</h1>
+    
+    @form(controllers.privately.routes.Home.exec_parseRecipes(), 'role -> "form") {
+        <div class = "or-page-content">
+            
+            <div class = "row">
+                <div class = "col-sm-12 form-group">
+                    <label>Source site</label>
+                    <div class = "checkbox">
+                        <input type = "checkbox" id = "or-pr-source-sites" name = "sourcesite_0" value = "nosalty"> Nosalty<br />
+                        <input type = "checkbox" id = "or-pr-source-sites" name = "sourcesite_1" value = "mindmegette"> Mindmegette<br />
+                        <input type = "checkbox" id = "or-pr-source-sites" name = "sourcesite_2" value = "aprosef"> Aprosef<br />
+                    </div>
+                </div>
+            </div>
+            
+            <div class = "row">
+                <div class = "col-sm-2 form-group pull-right">
+                    <label style = "visibility: hidden;">Search</label>
+                    <button type = "submit" class = "form-control btn btn-primary">Parse recipes</button>
+                </div>
+            </div>
+            
+        </div>
+    }
+    
+}
