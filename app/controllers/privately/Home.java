@@ -19,13 +19,19 @@
 package controllers.privately;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.google.inject.Inject;
 
 import models.Ingredient;
 import models.IngredientName;
 import models.Language;
+import models.Recipe;
+import models.RecipeIngredient;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.FormFactory;
@@ -33,6 +39,11 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import scrapers.IngredientScraper;
 import scrapers.data.ScrapedIngredient;
+import scrapers.data.ScrapedRecipe;
+import scrapers.visitors.AprosefVisitor;
+import scrapers.visitors.ListBasedVisitor;
+import scrapers.visitors.MindmegetteVisitor;
+import scrapers.visitors.NosaltyVisitor;
 import views.html.privateviews.*;
 
 /**
@@ -178,6 +189,8 @@ public class Home extends Controller
        
        List<String> sourceSites = new ArrayList<String>();
        
+       int startPage = Integer.parseInt(dynamicForm.get("startpage"));
+       
        for(int i = 0; i < NUM_OF_SOURCE_SITES; i++)
        {
            String sourceSite = dynamicForm.get("sourcesite_" + i);
@@ -189,30 +202,45 @@ public class Home extends Controller
        }
        
        Logger.debug(Home.class.getName() + "(admin).exec_parseRecipes():\n" + 
-           "    sourceSites = " + sourceSites
+           "    sourceSites = " + sourceSites + "\n" +
+           "    startpage = " + startPage
        );
+       
+       /* Determine which visitors to use. */
+       List<ListBasedVisitor> visitors = new ArrayList<ListBasedVisitor>();
        
        for(String site: sourceSites)
        {
            if(site.equalsIgnoreCase("nosalty"))
            {
-               // TODO
+               visitors.add(new NosaltyVisitor());
            }
            
            if(site.equalsIgnoreCase("aprosef"))
            {
-               // TODO
+               visitors.add(new AprosefVisitor());
            }
            
            if(site.equalsIgnoreCase("mindmegette"))
            {
-               // TODO
+               visitors.add(new MindmegetteVisitor());
+           }
+       }
+       
+       /* Start parsing. */
+       for(ListBasedVisitor visitor: visitors)
+       {
+           while(visitor.hasMoreElements())
+           {
+               ScrapedRecipe scrpdRecipe = visitor.nextElement();
+               
+               saveScrapedRecipeToDb(scrpdRecipe);
            }
        }
        
        result = ok
        (
-           parseIngredients.render()
+           parseRecipes.render()
        );
        
        return result;
@@ -241,4 +269,96 @@ public class Home extends Controller
 
 
     /* -- PRIVATE OTHERS --------------------------------------------------- */
+    
+    /**
+     * TODO
+     * @param recipe
+     */
+    private void saveScrapedRecipeToDb(ScrapedRecipe recipe)
+    {
+        /* Stores the mapping between scraped ingredients and DB ingredients. */
+        Map<String, Ingredient> scrpIngToDbIng = new HashMap<String, Ingredient>();
+        
+        for(ScrapedIngredient scrpIng: recipe.getIngredientList())
+        {
+            if(scrpIng.getName() != null)
+            {
+                Ingredient bestMatchIng = findBestMatch(scrpIng);
+                
+                if(bestMatchIng != null)
+                {
+                    scrpIngToDbIng.put(scrpIng.getName(), bestMatchIng);
+                }
+            }
+        }
+        
+        if(scrpIngToDbIng.values().size() > 0)
+        {
+            Recipe dbRecipe = new Recipe();
+            dbRecipe.name   = recipe.getName();
+            dbRecipe.url    = recipe.getUrl();
+            
+            dbRecipe.save();
+            
+            for(Ingredient dbIng: scrpIngToDbIng.values())
+            {
+                RecipeIngredient recIng = new RecipeIngredient();
+                
+                recIng.ingredient = dbIng;
+                recIng.recipe     = dbRecipe;
+                
+                recIng.save();
+            }
+        }
+        else
+        {
+            Logger.warn(Home.class.getName() + ".saveScrapedRecipeToDb(): No ingredients for scraped recipe!\n" +
+                "    scrapedRecipe.name = " + recipe.getName());
+        }
+    }
+    
+    /**
+     * Finds the best match for a scraped ingredient to a DB ingredient.
+     * 
+     * @param ingredient    The scraped ingredient.
+     * @return The DB ingredient. Null is returned if no appropriate ingredient found.
+     */
+    private Ingredient findBestMatch(ScrapedIngredient ingredient)
+    {
+        Ingredient result         = null;
+        String resultName         = null;
+        double maxJaroWinklerDist = 0.0;
+        
+        for(Ingredient dbIngredient: Ingredient.find.fetch("names").findList())
+        {   
+            String name = null;
+            
+            for(IngredientName ingName: dbIngredient.names)
+            {
+                /* Use the Hungarian name. */
+                if(ingName.language.id == 1L)
+                {
+                    name = ingName.name;
+                }
+            }
+            
+            double jaroWinkDist = StringUtils.getJaroWinklerDistance(ingredient.getName(), name);
+            
+            if(jaroWinkDist > maxJaroWinklerDist)
+            {
+                /* Found a better match. */
+                maxJaroWinklerDist = jaroWinkDist;
+                result             = dbIngredient;
+                resultName         = name;
+            }
+        }
+        // TODO: use result only if its score is bigger than a threshold.
+        Logger.debug(Home.class.getName() + ".findBestMatch(): result\n" +
+            "   dbName      = " + resultName + "\n" + 
+            "   scrapedName = " + ingredient.getName() +
+            "   score       = " + maxJaroWinklerDist
+        );
+        
+        return result;
+    }
 }
