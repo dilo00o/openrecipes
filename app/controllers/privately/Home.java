@@ -40,6 +40,7 @@ import play.mvc.Result;
 import scrapers.IngredientScraper;
 import scrapers.data.ScrapedIngredient;
 import scrapers.data.ScrapedRecipe;
+import scrapers.dbload.DbLoader;
 import scrapers.visitors.AprosefVisitor;
 import scrapers.visitors.ListBasedVisitor;
 import scrapers.visitors.MindmegetteVisitor;
@@ -230,12 +231,9 @@ public class Home extends Controller
        /* Start parsing. */
        for(ListBasedVisitor visitor: visitors)
        {
-           while(visitor.hasMoreElements())
-           {
-               ScrapedRecipe scrpdRecipe = visitor.nextElement();
-               
-               saveScrapedRecipeToDb(scrpdRecipe);
-           }
+           DbLoader loader = new DbLoader(visitor);
+           
+           loader.load();
        }
        
        result = ok
@@ -269,96 +267,4 @@ public class Home extends Controller
 
 
     /* -- PRIVATE OTHERS --------------------------------------------------- */
-    
-    /**
-     * TODO
-     * @param recipe
-     */
-    private void saveScrapedRecipeToDb(ScrapedRecipe recipe)
-    {
-        /* Stores the mapping between scraped ingredients and DB ingredients. */
-        Map<String, Ingredient> scrpIngToDbIng = new HashMap<String, Ingredient>();
-        
-        for(ScrapedIngredient scrpIng: recipe.getIngredientList())
-        {
-            if(scrpIng.getName() != null)
-            {
-                Ingredient bestMatchIng = findBestMatch(scrpIng);
-                
-                if(bestMatchIng != null)
-                {
-                    scrpIngToDbIng.put(scrpIng.getName(), bestMatchIng);
-                }
-            }
-        }
-        
-        if(scrpIngToDbIng.values().size() > 0)
-        {
-            Recipe dbRecipe = new Recipe();
-            dbRecipe.name   = recipe.getName();
-            dbRecipe.url    = recipe.getUrl();
-            
-            dbRecipe.save();
-            
-            for(Ingredient dbIng: scrpIngToDbIng.values())
-            {
-                RecipeIngredient recIng = new RecipeIngredient();
-                
-                recIng.ingredient = dbIng;
-                recIng.recipe     = dbRecipe;
-                
-                recIng.save();
-            }
-        }
-        else
-        {
-            Logger.warn(Home.class.getName() + ".saveScrapedRecipeToDb(): No ingredients for scraped recipe!\n" +
-                "    scrapedRecipe.name = " + recipe.getName());
-        }
-    }
-    
-    /**
-     * Finds the best match for a scraped ingredient to a DB ingredient.
-     * 
-     * @param ingredient    The scraped ingredient.
-     * @return The DB ingredient. Null is returned if no appropriate ingredient found.
-     */
-    private Ingredient findBestMatch(ScrapedIngredient ingredient)
-    {
-        Ingredient result         = null;
-        String resultName         = null;
-        double maxJaroWinklerDist = 0.0;
-        
-        for(Ingredient dbIngredient: Ingredient.find.fetch("names").findList())
-        {   
-            String name = null;
-            
-            for(IngredientName ingName: dbIngredient.names)
-            {
-                /* Use the Hungarian name. */
-                if(ingName.language.id == 1L)
-                {
-                    name = ingName.name;
-                }
-            }
-            
-            double jaroWinkDist = StringUtils.getJaroWinklerDistance(ingredient.getName(), name);
-            
-            if(jaroWinkDist > maxJaroWinklerDist)
-            {
-                /* Found a better match. */
-                maxJaroWinklerDist = jaroWinkDist;
-                result             = dbIngredient;
-                resultName         = name;
-            }
-        }
-        // TODO: use result only if its score is bigger than a threshold.
-        Logger.debug(Home.class.getName() + ".findBestMatch(): result\n" +
-            "   dbName      = " + resultName + "\n" + 
-            "   scrapedName = " + ingredient.getName() +
-            "   score       = " + maxJaroWinklerDist
-        );
-        
-        return result;
-    }
 }
