@@ -19,19 +19,12 @@
 package controllers.privately;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.inject.Inject;
 
 import models.Ingredient;
 import models.IngredientName;
 import models.Language;
-import models.Recipe;
-import models.RecipeIngredient;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.FormFactory;
@@ -39,7 +32,6 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import scrapers.IngredientScraper;
 import scrapers.data.ScrapedIngredient;
-import scrapers.data.ScrapedRecipe;
 import scrapers.dbload.DbLoader;
 import scrapers.visitors.AprosefVisitor;
 import scrapers.visitors.ListBasedVisitor;
@@ -231,7 +223,7 @@ public class Home extends Controller
        /* Start parsing. */
        for(ListBasedVisitor visitor: visitors)
        {
-           DbLoader loader = new DbLoader(visitor);
+           DbLoader loader = new DbLoader(visitor, 1L); /* lang is hard coded for Hungarian for now */
            
            loader.load();
        }

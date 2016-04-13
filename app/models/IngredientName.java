@@ -115,6 +115,12 @@ public class IngredientName extends Model
                     .ilike("name", "%" + query + "%")
                     .eq("language_id", languageID)
                 .findList();
+            
+            /* Check for aliases if result is empty. */
+            if(result == null || result.size() == 0)
+            {
+                result = getNamesByAliasesLikeByLanguage(query, languageID);
+            }
         }
         else
         {
@@ -184,6 +190,42 @@ public class IngredientName extends Model
 
 
     /* -- PRIVATE METHODS -------------------------------------------------- */
+    
+    /**
+     * Gets ingredient names by aliases with name like the given query string in the given language.
+     * 
+     * @param query         The query string.
+     * @param languageID    The id of the language.
+     * 
+     * @return List of ingredient names by aliases as described above, or an empty list if none found.
+     * */
+    private static List<IngredientName> getNamesByAliasesLikeByLanguage(String query, Long languageID)
+    {
+        List<IngredientName> result = new ArrayList<IngredientName>();
+        
+        List<IngredientAlias> aliases = IngredientAlias.find
+            .fetch("ingredient")
+            .where()
+                .ilike("name", "%" + query + "%")
+                .eq("language_id", languageID)
+            .findList();
+        
+        if(aliases != null)
+        {   
+            for(IngredientAlias alias: aliases)
+            {
+                for(IngredientName ingName: alias.ingredient.names)
+                {
+                    if(ingName.language.id == languageID)
+                    {
+                        result.add(ingName);
+                    }
+                }
+            }
+        }
+        
+        return result;
+    }
 
 
 

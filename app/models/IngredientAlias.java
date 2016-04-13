@@ -18,58 +18,55 @@
 
 package models;
 
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 
 import com.avaje.ebean.Model;
 
 /**
- * Model of languages.
+ * Ingredient aliases.
  *
  * @author Oliver Dozsa
  */
 @Entity
-public class Language extends Model
+public class IngredientAlias extends Model
 {
     /* --------------------------------------------------------------------- */
     /* ATTRIBUTES                                                            */
     /* --------------------------------------------------------------------- */
 
     /* -- PUBLIC ATTRIBUTES ------------------------------------------------ */
-    
+
     /**
-     * The unique identifier.
-     */
+     * The unique id of an alias.
+     * */
     @Id
     @GeneratedValue
     public Long id;
     
     /**
-     * The code of the language according to ISO 639-1.
+     * The name of the alias.
      * */
-    public String isoName;
+    public String name;
     
     /**
-     * Used for the mapping of the ingredient - ingredient names relationship.
+     * The ingredient of the ingredient alias.
      * */
-    @OneToMany(mappedBy = "language")
-    public List<IngredientName> ingredientNames;
+    @ManyToOne
+    public Ingredient ingredient;
     
     /**
-     * Used for the mapping of the ingredient - ingredient names relationship.
+     * The language of the ingredient alias.
      * */
-    @OneToMany(mappedBy = "language")
-    public List<IngredientAlias> ingredientAliases;
+    @ManyToOne
+    public Language language;
     
     /**
      * Finder.
      */
-    public static Model.Finder<Long, Language> find = new Model.Finder<Long, Language>(Language.class);
-
+    public static Finder<Long, IngredientAlias> find = new Finder<Long, IngredientAlias>(IngredientAlias.class);
 
 
     /* -- PROTECTED ATTRIBUTES --------------------------------------------- */

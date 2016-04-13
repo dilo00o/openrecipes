@@ -19,6 +19,7 @@
 package scrapers.dbload;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +65,11 @@ public class DbLoader
     private static final int MAX_NUM_OF_RETRIES = 5;
     
     /**
+     * Used for ingredient matching.
+     * */
+    private static final double MATCH_SCORE_THRESHOLD = 0.88;
+    
+    /**
      * Shows whether the state of the loading is working.
      */
     private boolean isWorking;
@@ -89,9 +95,11 @@ public class DbLoader
     private boolean stopLoad = false;
     
     /**
-     * Used for ingredient matching.
-     * */
-    private static final double MATCH_SCORE_THRESHOLD = 0.88;
+     * The language id used for scraping.
+     */
+    private Long languageId = 0L;
+    
+    
 
 
 
@@ -107,13 +115,15 @@ public class DbLoader
      * @param visitor     The visitor.
      * @param sourceId    The source ID.
      */
-    public DbLoader(RecipeSiteVisitor visitor)
+    public DbLoader(RecipeSiteVisitor visitor, Long languageID)
     {
         Logger.debug(DbLoader.class.getName() + ".DbLoader()["+ visitor.getClass().getSimpleName() +"]:\n" +
-            "    visitor  = "  + visitor.getClass().getName()
+            "    visitor    = "  + visitor.getClass().getName() + "\n" +
+            "    languageId = " + languageId
         );
 
-        this.visitor  = visitor;
+        this.visitor    = visitor;
+        this.languageId = languageID;
         
         isWorking = false;
         isError   = false;
@@ -300,11 +310,18 @@ public class DbLoader
         {
             if(scrpIng.getName() != null)
             {
-                Ingredient bestMatchIng = findBestMatch(scrpIng);
+                Ingredient bestMatchIng = findBestMatch(scrpIng, languageId);
                 
                 if(bestMatchIng != null)
                 {
                     scrpIngToDbIng.put(scrpIng.getName(), bestMatchIng);
+                }
+                else
+                {
+                    /* Ignore recipe if there's an ingredient missing. */
+                    scrpIngToDbIng.clear();
+                    
+                    break;
                 }
             }
         }
@@ -338,26 +355,24 @@ public class DbLoader
      * Finds the best match for a scraped ingredient to a DB ingredient.
      * 
      * @param ingredient    The scraped ingredient.
+     * @param language      The language id.
      * @return The DB ingredient. Null is returned if no appropriate ingredient found.
      */
-    private Ingredient findBestMatch(ScrapedIngredient ingredient)
+    private Ingredient findBestMatch(ScrapedIngredient ingredient, Long language)
     {
         Ingredient result         = null;
         String resultName         = null;
         double maxJaroWinklerDist = 0.0;
         
-        for(Ingredient dbIngredient: Ingredient.find.fetch("names").findList())
+        List<IngredientName> allNamesByLang = IngredientName.find
+            .fetch("ingredient")
+            .where()
+                .eq("language.id", language)
+            .findList();
+        
+        for(IngredientName dbIngredientName: allNamesByLang)
         {   
-            String name = null;
-            
-            for(IngredientName ingName: dbIngredient.names)
-            {
-                /* Use the Hungarian name. */
-                if(ingName.language.id == 1L)
-                {
-                    name = ingName.name;
-                }
-            }
+            String name = dbIngredientName.name;
             
             double jaroWinkDist = StringUtils.getJaroWinklerDistance(ingredient.getName(), name);
             
@@ -365,7 +380,56 @@ public class DbLoader
             {
                 /* Found a better match. */
                 maxJaroWinklerDist = jaroWinkDist;
-                result             = dbIngredient;
+                result             = dbIngredientName.ingredient;
+                resultName         = name;
+            }
+        }
+        
+        if((maxJaroWinklerDist <= MATCH_SCORE_THRESHOLD))
+        {
+            /* If no good result was found try with */
+            result = findBestMatchByAlias(ingredient.getName(), language);
+        }
+        
+        Logger.debug(Home.class.getName() + ".findBestMatch(): result\n" +
+            "   dbName      = " + resultName + "\n" + 
+            "   scrapedName = " + ingredient.getName() +
+            "   score       = " + maxJaroWinklerDist
+        );
+        
+        return result;
+    }
+    
+    /**
+     * Tries to find the best ingredient match based on alias search.
+     * 
+     * @param searchName    The search name.
+     * @param languageID    The language id.
+     * @return The best match or null.
+     */
+    private Ingredient findBestMatchByAlias(String searchName, Long languageID)
+    {
+        Ingredient result         = null;
+        String resultName         = null;
+        double maxJaroWinklerDist = 0.0;
+        
+        List<IngredientAlias> allAliasNamesByLang = IngredientAlias.find
+            .fetch("ingredient")
+            .where()
+                .eq("language.id", languageID)
+            .findList();
+        
+        for(IngredientAlias dbIngredientAliasName: allAliasNamesByLang)
+        {   
+            String name = dbIngredientAliasName.name;
+            
+            double jaroWinkDist = StringUtils.getJaroWinklerDistance(searchName, name);
+            
+            if(jaroWinkDist > maxJaroWinklerDist)
+            {
+                /* Found a better match. */
+                maxJaroWinklerDist = jaroWinkDist;
+                result             = dbIngredientAliasName.ingredient;
                 resultName         = name;
             }
         }
@@ -375,9 +439,9 @@ public class DbLoader
             result = null;
         }
         
-        Logger.debug(Home.class.getName() + ".findBestMatch(): result\n" +
+        Logger.debug(Home.class.getName() + ".findBestMatchByAlias(): result\n" +
             "   dbName      = " + resultName + "\n" + 
-            "   scrapedName = " + ingredient.getName() +
+            "   searchName  = " + searchName +
             "   score       = " + maxJaroWinklerDist
         );
         

@@ -75,6 +75,12 @@ public class Ingredient extends Model
     public List<IngredientTag> tags;
     
     /**
+     * The ingredient names.
+     * */
+    @OneToMany(mappedBy = "ingredient")
+    public List<IngredientAlias> aliases;
+    
+    /**
      * Finder.
      */
     public static Finder<Long, Ingredient> find = new Finder<Long, Ingredient>(Ingredient.class);
