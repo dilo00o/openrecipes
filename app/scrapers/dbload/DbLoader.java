@@ -393,7 +393,7 @@ public class DbLoader
         
         Logger.debug(Home.class.getName() + ".findBestMatch(): result\n" +
             "   dbName      = " + resultName + "\n" + 
-            "   scrapedName = " + ingredient.getName() + "\n"
+            "   scrapedName = " + ingredient.getName() + "\n" +
             "   score       = " + maxJaroWinklerDist +  "\n" +
             "   accepted    = " + (maxJaroWinklerDist >= MATCH_SCORE_THRESHOLD)
         );
@@ -442,7 +442,7 @@ public class DbLoader
         
         Logger.debug(Home.class.getName() + ".findBestMatchByAlias(): result\n" +
             "   dbName      = " + resultName + "\n" + 
-            "   searchName  = " + searchName +
+            "   searchName  = " + searchName + "\n" +
             "   score       = " + maxJaroWinklerDist +  "\n" +
             "   accepted    = " + (maxJaroWinklerDist >= MATCH_SCORE_THRESHOLD)
         );
