@@ -385,7 +385,7 @@ public class DbLoader
             }
         }
         
-        if((maxJaroWinklerDist <= MATCH_SCORE_THRESHOLD))
+        if((maxJaroWinklerDist < MATCH_SCORE_THRESHOLD))
         {
             /* If no good result was found try with */
             result = findBestMatchByAlias(ingredient.getName(), language);
@@ -393,8 +393,9 @@ public class DbLoader
         
         Logger.debug(Home.class.getName() + ".findBestMatch(): result\n" +
             "   dbName      = " + resultName + "\n" + 
-            "   scrapedName = " + ingredient.getName() +
-            "   score       = " + maxJaroWinklerDist
+            "   scrapedName = " + ingredient.getName() + "\n"
+            "   score       = " + maxJaroWinklerDist +  "\n" +
+            "   accepted    = " + (maxJaroWinklerDist >= MATCH_SCORE_THRESHOLD)
         );
         
         return result;
@@ -434,7 +435,7 @@ public class DbLoader
             }
         }
         
-        if((maxJaroWinklerDist >= MATCH_SCORE_THRESHOLD))
+        if((maxJaroWinklerDist < MATCH_SCORE_THRESHOLD))
         {
             result = null;
         }
@@ -442,7 +443,8 @@ public class DbLoader
         Logger.debug(Home.class.getName() + ".findBestMatchByAlias(): result\n" +
             "   dbName      = " + resultName + "\n" + 
             "   searchName  = " + searchName +
-            "   score       = " + maxJaroWinklerDist
+            "   score       = " + maxJaroWinklerDist +  "\n" +
+            "   accepted    = " + (maxJaroWinklerDist >= MATCH_SCORE_THRESHOLD)
         );
         
         return result;
